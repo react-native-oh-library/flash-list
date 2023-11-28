@@ -5,9 +5,10 @@ import {
   ViewabilityConfig,
   ViewabilityConfigCallbackPairs,
   ViewStyle,
+  ColorValue,
 } from "react-native";
 
-import { BlankAreaEventHandler } from "./native/auto-layout/AutoLayoutView";
+import {onBlankAreaEvent } from "./fabric/AutoLayoutNativeComponent";
 import ViewToken from "./viewability/ViewToken";
 
 export interface ListRenderItemInfo<TItem> {
@@ -35,17 +36,16 @@ export type ListRenderItem<TItem> = (
   info: ListRenderItemInfo<TItem>
 ) => React.ReactElement | null;
 
-export type ContentStyle = Pick<
-  ViewStyle,
-  | "backgroundColor"
-  | "paddingTop"
-  | "paddingLeft"
-  | "paddingRight"
-  | "paddingBottom"
-  | "padding"
-  | "paddingVertical"
-  | "paddingHorizontal"
->;
+export interface ContentStyle {
+  backgroundColor?: ColorValue;
+  paddingTop?: string | number;
+  paddingLeft?: string | number;
+  paddingRight?: string | number;
+  paddingBottom?: string | number;
+  padding?: string | number;
+  paddingVertical?: string | number;
+  paddingHorizontal?: string | number;
+}
 
 export interface FlashListProps<TItem> extends ScrollViewProps {
   /**
@@ -195,7 +195,7 @@ export interface FlashListProps<TItem> extends ScrollViewProps {
   /**
    * Used to extract a unique key for a given item at the specified index.
    * Key is used for optimizing performance. Defining `keyExtractor` is also necessary
-   * when doing [layout animations](https://shopify.github.io/flash-list/docs/guides/layout-animation)
+   * when doing [layout animations](https://flash-list.docs.shopify.io/guides/layout-animation)
    * to uniquely identify animated components.
    */
   keyExtractor?: ((item: TItem, index: number) => string) | undefined;
@@ -216,7 +216,7 @@ export interface FlashListProps<TItem> extends ScrollViewProps {
    * Please note that this event isn't synced with onScroll event but works with native onDraw/layoutSubviews. Events with values > 0 are blanks.
    * This event is raised even when there is no visible blank with negative values for extensibility however, for most use cases check blankArea > 0 and use the value.
    */
-  onBlankArea?: BlankAreaEventHandler;
+  onBlankArea?: onBlankAreaEvent;
 
   /**
    * Called once when the scroll position gets within onEndReachedThreshold of the rendered content.
