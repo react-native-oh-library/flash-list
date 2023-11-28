@@ -17,8 +17,8 @@ import {
 } from "recyclerlistview";
 import StickyContainer, { StickyContainerProps } from "recyclerlistview/sticky";
 
-import AutoLayoutView from "./native/auto-layout/AutoLayoutView";
-import CellContainer from "./native/cell-container/CellContainer";
+import AutoLayoutView from "./fabric/AutoLayoutNativeComponent";
+import CellContainer from "./fabric/CellContainerNativeComponent";
 import { PureComponentWrapper } from "./PureComponentWrapper";
 import GridLayoutProviderWithProps from "./GridLayoutProviderWithProps";
 import CustomError from "./errors/CustomError";
@@ -32,7 +32,6 @@ import {
 } from "./FlashListProps";
 import {
   getCellContainerPlatformStyles,
-  getFooterContainer,
   getItemAnimator,
   PlatformConfig,
 } from "./native/config/PlatformHelper";
@@ -70,9 +69,7 @@ class FlashList<T> extends React.PureComponent<
   private stickyContentContainerRef?: PureComponentWrapper;
   private listFixedDimensionSize = 0;
   private transformStyle = PlatformConfig.invertedTransformStyle;
-  private transformStyleHorizontal =
-    PlatformConfig.invertedTransformStyleHorizontal;
-
+  private transformStyleHorizontal = { transform: [{ scaleX: -1 }] };
   private distanceFromWindow = 0;
   private contentStyle: ContentStyleExplicit = {
     paddingBottom: 0,
@@ -173,14 +170,10 @@ class FlashList<T> extends React.PureComponent<
         newState.numColumns,
         nextProps
       );
+      // RLV retries to reposition the first visible item on layout provider change.
+      // It's not required in our case so we're disabling it
+      newState.layoutProvider.shouldRefreshWithAnchoring = false;
     }
-
-    // RLV retries to reposition the first visible item on layout provider change.
-    // It's not required in our case so we're disabling it
-    newState.layoutProvider.shouldRefreshWithAnchoring = Boolean(
-      !prevState.layoutProvider?.hasExpired
-    );
-
     if (nextProps.data !== prevState.data) {
       newState.data = nextProps.data;
       newState.dataProvider = prevState.dataProvider.cloneWithRows(
@@ -583,7 +576,7 @@ class FlashList<T> extends React.PureComponent<
     /** The web version of CellContainer uses a div directly which doesn't compose styles the way a View does.
      * We will skip using CellContainer on web to avoid this issue. `getFooterContainer` on web will
      * return a View. */
-    const FooterContainer = getFooterContainer() ?? CellContainer;
+    const FooterContainer =  CellContainer;
     return (
       <>
         <FooterContainer
@@ -841,13 +834,6 @@ class FlashList<T> extends React.PureComponent<
    */
   public get firstItemOffset() {
     return this.distanceFromWindow;
-  }
-
-  /**
-   * FlashList will skip using layout cache on next update. Can be useful when you know the layout will change drastically for example, orientation change when used as a carousel.
-   */
-  public clearLayoutCacheOnUpdate() {
-    this.state.layoutProvider.markExpired();
   }
 
   /**
