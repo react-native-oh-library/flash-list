@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RNOHCorePackage/ComponentBinders/ViewComponentJNapiBinder.h"
+#include "RNOHCorePackage/ComponentBinders/ViewComponentNapiBinder.h"
 #include "Props.h"
 
 namespace rnoh {
