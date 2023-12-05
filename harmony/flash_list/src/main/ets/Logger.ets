@@ -12,21 +12,21 @@ class Logger {
     this.isDebug = isDebug;
   }
 
-  debug(...args: any[]) {
-    hilog.debug(this.domain, this.prefix, this.format, args)
+  debug(...args: string[]): void {
+    hilog.debug(this.domain, this.prefix, this.format, args);
   }
 
-  info(...args: any[]) {
-    hilog.info(this.domain, this.prefix, this.format, args)
+  info(...args: string[]): void {
+    hilog.info(this.domain, this.prefix, this.format, args);
   }
 
-  warn(...args: any[]) {
-    hilog.warn(this.domain, this.prefix, this.format, args)
+  warn(...args: string[]): void {
+    hilog.warn(this.domain, this.prefix, this.format, args);
   }
 
-  error(...args: any[]) {
-    hilog.error(this.domain, this.prefix, this.format, args)
+  error(...args: string[]): void {
+    hilog.error(this.domain, this.prefix, this.format, args);
   }
 }
 
-export default new Logger('[HarmonyPicker]', 0xFF00, false)
+export default new Logger('HarmonyPicker', 0xFF00, false);

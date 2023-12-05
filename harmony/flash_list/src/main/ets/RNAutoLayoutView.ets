@@ -64,12 +64,12 @@ export type AutoLayoutViewDescriptor = Descriptor<"AutoLayoutView", AutoLayoutVi
 @Component
 export struct RNAutoLayoutView {
   ctx!: RNOHContext
-  tag: number
+  tag: number = 0
   @BuilderParam buildCustomComponent: (componentBuilderContext: ComponentBuilderContext) => void
   @State descriptor: AutoLayoutViewDescriptor = {} as AutoLayoutViewDescriptor
   private unregisterDescriptorChangesListener?: () => void = undefined
   private alShadow: AutoLayoutShadow = new AutoLayoutShadow();
-  private children: number[];
+  private children: number[] = [];
   @State top: number = 0
   @State left: number = 0
   private footer: CellContainerDescriptor = {} as CellContainerDescriptor;
@@ -202,7 +202,7 @@ export struct RNAutoLayoutView {
     } else {
       // TODO diff 待确定
       // this.descriptor.props.top = this.descriptor.props.top - 100;
-      this.footer.props.top = this.descriptor.props.height;
+      if (footer) this.footer.props.top = this.descriptor.props.height;
       this.descriptor.props.height = this.descriptor.props.height - diff;
       autoLayoutParentDescriptor.props.height = this.descriptor.props.height + this.footer.props.height ? this.footer.props.height : 0
       // + this.headerDiff

@@ -30,7 +30,7 @@ export type CellContainerDescriptor = Descriptor<"CellContainer", CellContainerP
 @Component
 export struct RNCellContainer {
   ctx!: RNOHContext
-  tag: number
+  tag: number = 0
   @BuilderParam buildCustomComponent: (componentBuilderContext: ComponentBuilderContext) => void
   @State descriptor: CellContainerDescriptor = {} as CellContainerDescriptor
   private unregisterDescriptorChangesListener?: () => void = undefined
