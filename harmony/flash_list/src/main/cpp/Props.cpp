@@ -12,8 +12,8 @@ AutoLayoutViewProps::AutoLayoutViewProps(
 
   horizontal(convertRawProp(context, rawProps, "horizontal", sourceProps.horizontal, {false})),
   scrollOffset(convertRawProp(context, rawProps, "scrollOffset", sourceProps.scrollOffset, {0.0})),
-  windowSize(convertRawProp(context, rawProps, "windowSize", sourceProps.windowSize, {false})),
-  renderAheadOffset(convertRawProp(context, rawProps, "renderAheadOffset", sourceProps.renderAheadOffset, {false})),
+  windowSize(convertRawProp(context, rawProps, "windowSize", sourceProps.windowSize, {0.0})),
+  renderAheadOffset(convertRawProp(context, rawProps, "renderAheadOffset", sourceProps.renderAheadOffset, {0.0})),
   enableInstrumentation(convertRawProp(context, rawProps, "enableInstrumentation", sourceProps.enableInstrumentation, {false})),
   disableAutoLayout(convertRawProp(context, rawProps, "disableAutoLayout", sourceProps.disableAutoLayout, {false})) {}
 
