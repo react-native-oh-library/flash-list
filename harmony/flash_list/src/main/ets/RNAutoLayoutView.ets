@@ -4,17 +4,23 @@ import {
   RNComponentFactory,
   RNOHContext,
   RNViewBase,
-  ViewDynamicProps
-} from 'rnoh'
+  ViewBaseProps,
+  Tag
+} from 'rnoh';
+import { CellContainerDescriptor, CellContainerProps } from "./RNCellContainer";
+import { AutoLayoutShadow } from "./RNAutoLayoutShadow";
+import Logger from './Logger';
 
-export type ViewDescriptor = Descriptor<"View", ViewDynamicProps & {
+interface ViewProps extends ViewBaseProps {
   top: number
   left: number
   height: number
   width: number
-}>
+}
 
-export type ScrollViewProps = ViewDynamicProps & {
+export type ViewDescriptor = Descriptor<"View", ViewProps>
+
+export interface ScrollViewProps extends ViewBaseProps {
   scrollEnabled?: boolean
   contentOffsetX: number
   contentOffsetY: number
@@ -28,7 +34,7 @@ export type ScrollViewProps = ViewDynamicProps & {
   width: number
 }
 
-export type ScrollViewState = {
+export interface ScrollViewState {
   contentOffsetX: number
   contentOffsetY: number
   contentSizeWidth: number
@@ -37,11 +43,7 @@ export type ScrollViewState = {
 
 export type ScrollViewDescriptor = Descriptor<"ScrollView", ScrollViewProps, ScrollViewState>
 
-import { RNCellContainer, CellContainerDescriptor, CellContainerProps } from "./RNCellContainer"
-import { AutoLayoutShadow } from "./RNAutoLayoutShadow"
-import emitter from '@ohos.events.emitter';
-
-export type AutoLayoutViewProps = ViewDynamicProps & {
+export interface AutoLayoutViewProps extends ViewBaseProps {
   scrollOffset: number
   windowSize: number
   renderAheadOffset: number
@@ -54,25 +56,14 @@ export type AutoLayoutViewProps = ViewDynamicProps & {
   width: number
 }
 
-export const FLASH_LIST_TYPE = "AutoLayoutView" as const
+export const FLASH_LIST_TYPE: string = "AutoLayoutView";
 
 
-export type AutoLayoutViewDescriptor = Descriptor<typeof FLASH_LIST_TYPE, ViewDynamicProps & {
-  scrollOffset: number
-  windowSize: number
-  renderAheadOffset: number
-  horizontal: number
-  enableInstrumentation: boolean
-  disableAutoLayout: boolean
-  top: number
-  left: number
-  height: number
-  width: number
-}>
+export type AutoLayoutViewDescriptor = Descriptor<"AutoLayoutView", AutoLayoutViewProps>
 
 @Component
 export struct RNAutoLayoutView {
-  ctx: RNOHContext
+  ctx!: RNOHContext
   tag: number
   @BuilderParam buildCustomComponent: (componentBuilderContext: ComponentBuilderContext) => void
   @State descriptor: AutoLayoutViewDescriptor = {} as AutoLayoutViewDescriptor
@@ -81,7 +72,7 @@ export struct RNAutoLayoutView {
   private children: number[];
   @State top: number = 0
   @State left: number = 0
-  private footer: CellContainerDescriptor;
+  private footer: CellContainerDescriptor = {} as CellContainerDescriptor;
 
   aboutToAppear() {
     this.descriptor = this.ctx.descriptorRegistry.getDescriptor<AutoLayoutViewDescriptor>(this.tag)
@@ -92,13 +83,13 @@ export struct RNAutoLayoutView {
     )
     this.top = this.descriptor.props.top
     this.left = this.descriptor.props.left
-    console.log(`[RNOH]: in RNAutoLayoutView: ${JSON.stringify(this.descriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView: ${JSON.stringify(this.descriptor)}`)
 
     for (let index = 0; index < this.descriptor.childrenTags.length; index++) {
       const childTag: Descriptor = this.ctx.descriptorRegistry.getDescriptor(this.descriptor.childrenTags[index])
-      console.log(`[RNOH]: in RNAutoLayoutView ForEach childrenTags: ${JSON.stringify(childTag)}`)
+      Logger.debug(`[RNOH]: in RNAutoLayoutView ForEach childrenTags: ${JSON.stringify(childTag)}`)
     }
-    console.log(`[RNOH]: in RNAutoLayoutView is horizontal: ${this.descriptor.props.horizontal}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView is horizontal: ${this.descriptor.props.horizontal}`)
     this.alShadow.horizontal = this.descriptor.props.horizontal === 1
     this.alShadow.scrollOffset = this.descriptor.props.scrollOffset
     this.alShadow.windowSize = this.descriptor.props.windowSize
@@ -117,36 +108,36 @@ export struct RNAutoLayoutView {
 
     const autoLayoutParentTag = this.getParentViewTag();
     const autoLayoutParentDescriptor: ViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(autoLayoutParentTag) as ViewDescriptor
-    console.log(`[RNOH]: in RNAutoLayoutView aboutToAppear autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView aboutToAppear autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
     autoLayoutParentDescriptor.props.height = this.descriptor.props.height + this.footer?.props.height;
     autoLayoutParentDescriptor.layoutMetrics.frame.size.height = autoLayoutParentDescriptor.props.height;
-    console.log(`[RNOH]: in RNAutoLayoutView aboutToAppear After autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView aboutToAppear After autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
 
     const autoLayoutGrandparentTag = this.getAutoLayoutGrandparentTag();
     const autoLayoutGrandparentDescriptor: ViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(autoLayoutGrandparentTag) as ViewDescriptor;
-    console.log(`[RNOH]: in RNAutoLayoutView aboutToAppear autoLayoutGrandparentDescriptor: ${JSON.stringify(autoLayoutGrandparentDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView aboutToAppear autoLayoutGrandparentDescriptor: ${JSON.stringify(autoLayoutGrandparentDescriptor)}`)
     autoLayoutGrandparentDescriptor.props.height = this.descriptor.props.height + this.footer?.props.height;
     autoLayoutGrandparentDescriptor.layoutMetrics.frame.size.height = this.descriptor.props.height + this.footer?.props.height;
-    console.log(`[RNOH]: in RNAutoLayoutView aboutToAppear After autoLayoutGrandparentDescriptor: ${JSON.stringify(autoLayoutGrandparentDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView aboutToAppear After autoLayoutGrandparentDescriptor: ${JSON.stringify(autoLayoutGrandparentDescriptor)}`)
 
     const parentScrollViewTag = this.getParentScrollViewTag();
     const scrollViewDescriptor: ScrollViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(parentScrollViewTag) as ScrollViewDescriptor
-    console.log(`[RNOH]: in RNAutoLayoutView aboutToAppear scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView aboutToAppear scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
     scrollViewDescriptor.props.height = this.descriptor.props.height + this.footer?.props.height;
     scrollViewDescriptor.state.contentSizeHeight = this.descriptor.props.height + this.footer?.props.height;
-    console.log(`[RNOH]: in RNAutoLayoutView aboutToAppear After scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView aboutToAppear After scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
   }
 
   aboutToDisappear() {
-    console.info('RNAutoLayoutView aboutToDisappear');
+    Logger.info('RNAutoLayoutView aboutToDisappear');
     this.unregisterDescriptorChangesListener?.();
   }
 
   fixLayout(): void {
-    console.log(`[RNOH]: in RNAutoLayoutView fixLayout: start `)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView fixLayout: start `)
 
     if (this.children.length > 1 && !this.descriptor.props.disableAutoLayout) {
-      console.log(`[RNOH]: in RNAutoLayoutView fixLayout children: ` + this.children)
+      Logger.debug(`[RNOH]: in RNAutoLayoutView fixLayout children: ` + this.children)
       this.alShadow.offsetFromStart = this.alShadow.horizontal ? this.descriptor.props.left : this.descriptor.props.top;
       this.alShadow.clearGapsAndOverlaps(this.children, this.ctx);
     }
@@ -154,7 +145,7 @@ export struct RNAutoLayoutView {
 
   updateAutoLayout() {
     this.children = this.ctx.descriptorRegistry.getDescriptor(this.tag).childrenTags;
-    console.log(`[RNOH]: in RNAutoLayoutView descriptor: ${JSON.stringify(this.descriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView descriptor: ${JSON.stringify(this.descriptor)}`)
     this.fixLayout();
     this.fixFooter();
 
@@ -176,8 +167,8 @@ export struct RNAutoLayoutView {
 
     const firstChildTag = this.children[0];
     const firstChildDescriptor: CellContainerDescriptor = this.ctx.descriptorRegistry.getDescriptor(firstChildTag) as CellContainerDescriptor;
-    console.log(`[RNOH]: in RNAutoLayoutView Final firstChildDescriptor: ${JSON.stringify(firstChildDescriptor)}`)
-    console.log(`[RNOH]: in RNAutoLayoutView Final descriptor: ${JSON.stringify(this.descriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView Final firstChildDescriptor: ${JSON.stringify(firstChildDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView Final descriptor: ${JSON.stringify(this.descriptor)}`)
     return this.children;
   }
 
@@ -187,14 +178,14 @@ export struct RNAutoLayoutView {
       return;
     }
     let scrollViewDescriptor: ScrollViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(parentScrollViewTag) as ScrollViewDescriptor
-    console.log(`[RNOH]: in RNAutoLayoutView fixFooter scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
     const isAutoLayoutEndVisible = this.alShadow.horizontal ? (this.descriptor.props.left + this.descriptor.props.width) <= scrollViewDescriptor.props.width : (this.descriptor.props.top + this.descriptor.props.height) <= scrollViewDescriptor.props.height;
     if (!isAutoLayoutEndVisible) {
       return;
     }
     let autoLayoutParentTag = this.getParentViewTag();
     let autoLayoutParentDescriptor: ViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(autoLayoutParentTag) as ViewDescriptor
-    console.log(`[RNOH]: in RNAutoLayoutView fixFooter autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
 
     // footer AutoLayoutView的兄弟CellContainer节点
     const footerTag = this.getFooterTag();
@@ -213,10 +204,10 @@ export struct RNAutoLayoutView {
       // this.descriptor.props.top = this.descriptor.props.top - 100;
       this.footer.props.top = this.descriptor.props.height;
       this.descriptor.props.height = this.descriptor.props.height - diff;
-      autoLayoutParentDescriptor.props.height = this.descriptor.props.height + this.footer.props.height
+      autoLayoutParentDescriptor.props.height = this.descriptor.props.height + this.footer.props.height ? this.footer.props.height : 0
       // + this.headerDiff
       autoLayoutParentDescriptor.layoutMetrics.frame.size.height = autoLayoutParentDescriptor.props.height;
-      console.log(`[RNOH]: in RNAutoLayoutView fixFooter After autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
+      Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter After autoLayoutParentDescriptor: ${JSON.stringify(autoLayoutParentDescriptor)}`)
       autoLayoutParentDescriptor = JSON.parse(JSON.stringify(autoLayoutParentDescriptor));
     }
   }
@@ -230,8 +221,8 @@ export struct RNAutoLayoutView {
       this.alShadow.lastMaxBoundOverall = this.alShadow.horizontal ? (lastChildDescriptor.props.left + lastChildDescriptor.props.width) : (lastChildDescriptor.props.top + lastChildDescriptor.props.height)
     }
     const autoLayoutEnd = this.alShadow.horizontal ? this.descriptor.props.width : this.descriptor.props.height;
-    console.log(`[RNOH]: in RNAutoLayoutView fixFooter getFooterDiff lastMaxBoundOverall: ${JSON.stringify(this.alShadow.lastMaxBoundOverall)}`)
-    console.log(`[RNOH]: in RNAutoLayoutView fixFooter getFooterDiff autoLayoutEnd: ${JSON.stringify(autoLayoutEnd)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter getFooterDiff lastMaxBoundOverall: ${JSON.stringify(this.alShadow.lastMaxBoundOverall)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter getFooterDiff autoLayoutEnd: ${JSON.stringify(autoLayoutEnd)}`)
     return autoLayoutEnd - this.alShadow.lastMaxBoundOverall;
   }
 
@@ -243,8 +234,8 @@ export struct RNAutoLayoutView {
       const viewTag = ParentChildrenTags[i];
       const view: CellContainerProps = this.ctx.descriptorRegistry.getDescriptor(viewTag).props as CellContainerProps;
       if (view.index === -1) {
-        console.log(`[RNOH]: in RNAutoLayoutView fixFooter getFooterTag: ${JSON.stringify(viewTag)}`)
-        console.log(`[RNOH]: in RNAutoLayoutView fixFooter getFooter: ${JSON.stringify(view)}`)
+        Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter getFooterTag: ${JSON.stringify(viewTag)}`)
+        Logger.debug(`[RNOH]: in RNAutoLayoutView fixFooter getFooter: ${JSON.stringify(view)}`)
         return viewTag;
       }
     }
@@ -256,7 +247,7 @@ export struct RNAutoLayoutView {
     let autoLayoutParentDescriptor: ViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(autoLayoutParentTag) as ViewDescriptor;
     let autoLayoutGrandparentTag: number = autoLayoutParentDescriptor.parentTag as number;
     let autoLayoutGrandparentDescriptor: ViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(autoLayoutGrandparentTag) as ViewDescriptor;
-    console.log(`[RNOH]: in RNAutoLayoutView getAutoLayoutGrandparentTag autoLayoutGrandparentDescriptor: ${JSON.stringify(autoLayoutGrandparentDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView getAutoLayoutGrandparentTag autoLayoutGrandparentDescriptor: ${JSON.stringify(autoLayoutGrandparentDescriptor)}`)
     return autoLayoutGrandparentTag;
   }
 
@@ -267,7 +258,7 @@ export struct RNAutoLayoutView {
     let autoLayoutGrandparentDescriptor: ViewDescriptor = this.ctx.descriptorRegistry.getDescriptor(autoLayoutGrandparentTag) as ViewDescriptor;
     let scrollViewTag: number = autoLayoutGrandparentDescriptor.parentTag as number;
     let scrollViewDescriptor: Descriptor = this.ctx.descriptorRegistry.getDescriptor(scrollViewTag)
-    console.log(`[RNOH]: in RNAutoLayoutView getParentScrollViewTag scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
+    Logger.debug(`[RNOH]: in RNAutoLayoutView getParentScrollViewTag scrollViewDescriptor: ${JSON.stringify(scrollViewDescriptor)}`)
     return scrollViewTag;
   }
 
@@ -291,13 +282,9 @@ export struct RNAutoLayoutView {
 
   build() {
     RNViewBase({ ctx: this.ctx, tag: this.tag }) {
-      ForEach(this.descriptor.childrenTags, (childrenTag) => {
-        Stack() {
-          RNComponentFactory({ ctx: this.ctx, tag: childrenTag, buildCustomComponent: this.buildCustomComponent })
-        }
-        .width("100%")
-        .height("100%")
-      }, childrenTag => childrenTag)
+      ForEach(this.descriptor.childrenTags, (childrenTag: Tag) => {
+        RNComponentFactory({ ctx: this.ctx, tag: childrenTag, buildCustomComponent: this.buildCustomComponent })
+      }, (childrenTag: Tag) => childrenTag.toString())
     }
   }
 }

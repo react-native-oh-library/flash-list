@@ -1,10 +1,6 @@
-import {RNCellContainer,CellContainerProps } from "./RNCellContainer";
-import {
-  ComponentBuilderContext,
-  RNOHContext,
-  Descriptor,
-  Tag,
-} from 'rnoh'
+import { CellContainerProps } from "./RNCellContainer";
+import { RNOHContext } from 'rnoh';
+import Logger from './Logger';
 
 export class AutoLayoutShadow {
   horizontal: boolean = false;
@@ -83,10 +79,10 @@ export class AutoLayoutShadow {
 
     let cell:CellContainerProps =  ctx.descriptorRegistry.getDescriptor(sortedItems[sortedItems.length - 2]).props as CellContainerProps;
     cell = JSON.parse(JSON.stringify(cell));
-    console.log(`[RNOH]: in AutoLayoutShadow After cell: ${JSON.stringify(cell)}`)
+    Logger.debug(`[RNOH]: in AutoLayoutShadow After cell: ${JSON.stringify(cell)}`)
     let neighbour:CellContainerProps = ctx.descriptorRegistry.getDescriptor(sortedItems[sortedItems.length - 1]).props as CellContainerProps;
     neighbour = JSON.parse(JSON.stringify(neighbour));
-    console.log(`[RNOH]: in AutoLayoutShadow After neighbour: ${JSON.stringify(neighbour)}`)
+    Logger.debug(`[RNOH]: in AutoLayoutShadow After neighbour: ${JSON.stringify(neighbour)}`)
     this.lastMaxBound = maxBoundNeighbour;
     this.lastMinBound = minBound;
   }

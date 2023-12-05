@@ -4,13 +4,16 @@ import {
   RNComponentFactory,
   RNOHContext,
   RNViewBase,
-  ViewDynamicProps
-} from 'rnoh'
-import emitter from '@ohos.events.emitter';
+  ViewBaseProps,
+  ColorSegments,
+  BorderColors,
+  Tag
+} from 'rnoh';
+import Logger from './Logger';
 
-export const CELL_CONTAINER_TYPE = "CellContainer" as const
+export const CELL_CONTAINER_TYPE: string = "CellContainer";
 
-export type CellContainerProps = ViewDynamicProps & {
+export interface CellContainerProps extends ViewBaseProps {
   index: number
   right: number
   bottom: number
@@ -18,17 +21,15 @@ export type CellContainerProps = ViewDynamicProps & {
   left: number
   height: number
   width: number
-  backgroundColor: number[]
-  borderColor: number[]
-  // backgroundColor: number & number[]
-  // borderColor: number & number[]
+  backgroundColor: ColorSegments
+  borderColor: BorderColors
 }
 
-export type CellContainerDescriptor = Descriptor<typeof CELL_CONTAINER_TYPE, CellContainerProps>
+export type CellContainerDescriptor = Descriptor<"CellContainer", CellContainerProps>
 
 @Component
 export struct RNCellContainer {
-  ctx: RNOHContext
+  ctx!: RNOHContext
   tag: number
   @BuilderParam buildCustomComponent: (componentBuilderContext: ComponentBuilderContext) => void
   @State descriptor: CellContainerDescriptor = {} as CellContainerDescriptor
@@ -43,22 +44,10 @@ export struct RNCellContainer {
         this.descriptor = (newDescriptor as CellContainerDescriptor)
       }
     )
-    console.log(`[RNOH]: in RNCellContainer After descriptor: ${JSON.stringify(this.descriptor)}`)
+    Logger.debug(`[RNOH]: in RNCellContainer After descriptor: ${JSON.stringify(this.descriptor)}`)
     if (this.descriptor.props.top) {
       this.top = this.descriptor.props.top;
     }
-
-    let innerEvent = {
-      eventId: this.tag
-    };
-
-    // 收到eventId后的事件后执行该回调函数
-    emitter.on(innerEvent, (data: any) => {
-      console.log(`[RNOH]: in RNCellContainer emitterCallback TAG: ${JSON.stringify(this.tag)}`)
-      console.log(`[RNOH]: in RNCellContainer emitterCallback DATA: ${JSON.stringify(data)}`)
-      this.top = data.data.footerTop
-      console.log(`[RNOH]: in RNCellContainer emitterCallback this.top: ${JSON.stringify(this.top)}`)
-    });
   }
 
   aboutToDisappear() {
@@ -70,20 +59,15 @@ export struct RNCellContainer {
   }
 
   getIndex(): number {
-    console.log(`[RNOH]: in RNCellContainer index: ${JSON.stringify(this.index)}`)
+    Logger.debug(`[RNOH]: in RNCellContainer index: ${JSON.stringify(this.index)}`)
     return this.index;
   }
 
   build() {
     RNViewBase({ ctx: this.ctx, tag: this.tag }) {
-      Stack() {
-        ForEach(this.descriptor.childrenTags, (tag) => {
-          RNComponentFactory({ ctx: this.ctx, tag: tag, buildCustomComponent: this.buildCustomComponent })
-        }, tag => tag)
-      }
-      .width("100%")
-      .height("100%")
-      .zIndex(this.getIndex())
+      ForEach(this.descriptor.childrenTags, (tag: Tag) => {
+        RNComponentFactory({ ctx: this.ctx, tag: tag, buildCustomComponent: this.buildCustomComponent })
+      }, (tag: Tag) => tag.toString())
     }
   }
 }
