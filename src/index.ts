@@ -8,11 +8,16 @@ export {
   RenderTargetOptions,
 } from "./FlashListProps";
 export { default as AnimatedFlashList } from "./AnimatedFlashList";
+// export {
+//   useOnNativeBlankAreaEvents,
+//   BlankAreaEventHandler,
+//   BlankAreaEvent,
+// } from "./native/auto-layout/AutoLayoutView";
 export {
-  useOnNativeBlankAreaEvents,
-  BlankAreaEventHandler,
+  // useOnNativeBlankAreaEvents,
+  // BlankAreaEventHandler,
   BlankAreaEvent,
-} from "./native/auto-layout/AutoLayoutView";
+} from "./fabric/AutoLayoutNativeComponent";
 export {
   useBenchmark,
   BenchmarkParams,
@@ -40,4 +45,4 @@ export {
 export { JSFPSMonitor, JSFPSResult } from "./benchmark/JSFPSMonitor";
 export { autoScroll, Cancellable } from "./benchmark/AutoScrollHelper";
 export { default as ViewToken } from "./viewability/ViewToken";
-export { default as CellContainer } from "./native/cell-container/CellContainer";
+export { default as CellContainer } from "./fabric/CellContainerNativeComponent";

@@ -1,0 +1,12 @@
+{
+  "license": "",
+  "devDependencies": {
+    "rnoh": "file:../rnoh"
+  },
+  "author": "",
+  "name": "rnoh-flash-list",
+  "description": "",
+  "main": "index.ets",
+  "version": "0.0.1",
+  "dependencies": {}
+}
