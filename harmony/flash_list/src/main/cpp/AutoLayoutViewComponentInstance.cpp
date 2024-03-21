@@ -64,7 +64,7 @@ namespace rnoh {
     void AutoLayoutViewComponentInstance::onAppear() {
         fixLayout();
         fixFooter();
-//         getLocalRootArkUINode().markDirty();
+        getLocalRootArkUINode().markDirty();
 
         parentScrollView = getParentScrollView();
         if (enableInstrumentation && parentScrollView != nullptr) {
@@ -79,10 +79,12 @@ namespace rnoh {
                       << parentScrollView->getLocalRootArkUINode().getArkUINodeHandle();
             auto scrollOffset = alShadow.horizontal ? parentScrollView->getLocalRootArkUINode().getScrollOffset().x
                                                     : parentScrollView->getLocalRootArkUINode().getScrollOffset().y;
-            
+
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollOffset:" << scrollOffset;
             auto startOffset = alShadow.horizontal ? getLeft() : getTop();
+            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> startOffset:" << startOffset;
             auto endOffset = alShadow.horizontal ? getRight() : getBottom();
+            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> endOffset:" << endOffset;
 
             auto distanceFromWindowStart = MAX(startOffset - scrollOffset, 0);
             auto distanceFromWindowEnd = MAX(scrollOffset + scrollContainerSize - endOffset, 0);
@@ -104,9 +106,13 @@ namespace rnoh {
             return;
         }
         horizontal = autoLayoutViewProps->horizontal;
-        scrollOffset = autoLayoutViewProps->scrollOffset;
-        windowSize = autoLayoutViewProps->windowSize;
-        renderAheadOffset = autoLayoutViewProps->renderAheadOffset;
+        alShadow.horizontal = autoLayoutViewProps->horizontal;
+        //         scrollOffset = autoLayoutViewProps->scrollOffset;
+        alShadow.scrollOffset = autoLayoutViewProps->scrollOffset;
+        //         windowSize = autoLayoutViewProps->windowSize;
+        alShadow.windowSize = autoLayoutViewProps->windowSize;
+        //         renderAheadOffset = autoLayoutViewProps->renderAheadOffset;
+        alShadow.renderOffset = autoLayoutViewProps->renderAheadOffset;
         enableInstrumentation = autoLayoutViewProps->enableInstrumentation;
         disableAutoLayout = autoLayoutViewProps->disableAutoLayout;
         if (parentScrollView != nullptr) {
@@ -118,10 +124,12 @@ namespace rnoh {
     }
 
     void AutoLayoutViewComponentInstance::fixLayout() {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::fixLayout>";
-        alShadow.offsetFromStart = alShadow.horizontal ? getLeft() : getTop();
-        alShadow.clearGapsAndOverlaps(getChildren());
-        setLayout(m_layoutMetrics);
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::fixLayout> childCount: " << getChildren().size();
+        if (getChildren().size() > 1 && !disableAutoLayout) {
+            alShadow.offsetFromStart = alShadow.horizontal ? getLeft() : getTop();
+            alShadow.clearGapsAndOverlaps(getChildren());
+            //             setLayout(m_layoutMetrics);
+        }
     }
 
     void AutoLayoutViewComponentInstance::fixFooter() {

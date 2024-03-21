@@ -30,8 +30,17 @@ namespace rnoh {
             auto neighbour = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(sortedItems[i + 1]);
             // Only apply correction if the next cell is consecutive.
             bool isNeighbourConsecutive = neighbour->getIndex() == cell->getIndex() + 1;
+            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> isNeighbourConsecutive: "
+                      << isNeighbourConsecutive;
             if (isWithinBounds(*cell)) {
+                LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> isWithinBounds!";
                 if (!horizontal) {
+                    //                     LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> cell.bottom" <<
+                    //                     cell->getBottom(); LOG(INFO) << "[clx]
+                    //                     <AutoLayoutViewComponentInstance::shadow> cell.top" << cell->getTop();
+                    //                     LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> cell.left" <<
+                    //                     cell->getLeft(); LOG(INFO) << "[clx]
+                    //                     <AutoLayoutViewComponentInstance::shadow> cell.right" << cell->getRight();
                     maxBound = MAX(maxBound, cell->getBottom());
                     minBound = MIN(minBound, cell->getTop());
                     maxBoundNeighbour = maxBound;
@@ -39,6 +48,7 @@ namespace rnoh {
                         if (cell->getLeft() < neighbour->getLeft()) {
                             if (cell->getRight() != neighbour->getLeft()) {
                                 neighbour->setRight(cell->getRight() + neighbour->getWidth());
+                                neighbour->setLeft(cell->getRight());
                             }
                             if (cell->getTop() != neighbour->getTop()) {
                                 neighbour->setBottom(cell->getTop() + neighbour->getHeight());
@@ -46,7 +56,7 @@ namespace rnoh {
                             }
                         } else {
                             neighbour->setBottom(maxBound + neighbour->getHeight());
-                            neighbour->setTop(cell->getTop());
+                            neighbour->setTop(maxBound);
                         }
                     }
                     if (isWithinBounds(*neighbour)) {
@@ -83,8 +93,8 @@ namespace rnoh {
                 lastMaxBoundOverall = MAX(lastMaxBoundOverall, cell->getBottom());
                 lastMaxBoundOverall = MAX(lastMaxBoundOverall, neighbour->getBottom());
             }
-            cell->setLayout(cell->getLayoutMetrics());
-            neighbour->setLayout(neighbour->getLayoutMetrics());
+            //             cell->setLayout(cell->getLayoutMetrics());
+            //             neighbour->setLayout(neighbour->getLayoutMetrics());
         }
         lastMaxBound = maxBoundNeighbour;
         lastMinBound = minBound;
@@ -94,10 +104,20 @@ namespace rnoh {
      * offset taken directly from scrollview object*/
     int AutoLayoutShadow::computeBlankFromGivenOffset(int actualScrollOffset, int distanceFromWindowStart,
                                                       int distanceFromWindowEnd) {
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> actualScrollOffset:"
+                  << actualScrollOffset;
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> offsetFromStart:"
+                  << offsetFromStart;
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> lastMinBound:"
+                  << lastMinBound;
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> lastMaxBound:"
+                  << lastMaxBound;
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> windowSize:" << windowSize;
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> renderOffset:"
+                  << renderOffset;
         auto scrollOffset = actualScrollOffset - offsetFromStart;
         blankOffsetAtStart = lastMinBound - scrollOffset - distanceFromWindowStart;
-        blankOffsetAtEnd =
-            scrollOffset + windowSize - renderOffset - lastMaxBound - distanceFromWindowEnd;
+        blankOffsetAtEnd = scrollOffset + windowSize - renderOffset - lastMaxBound - distanceFromWindowEnd;
         return MAX(blankOffsetAtStart, blankOffsetAtEnd);
     }
 
@@ -105,17 +125,20 @@ namespace rnoh {
      * still remain in the view tree. If views outside get considered then gaps between unused items will cause
      * algorithm to fail.*/
     bool AutoLayoutShadow::isWithinBounds(CellContainerComponentInstance &cell) {
+
         auto scrollOffset = this->scrollOffset - offsetFromStart;
+        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::isWithinBounds>: "
+                  << (cell.getTop() >= (scrollOffset - renderOffset) ||
+                      cell.getBottom() >= (scrollOffset - renderOffset)) &&
+            (cell.getTop() <= scrollOffset + windowSize || cell.getBottom() <= scrollOffset + windowSize);
         if (!this->horizontal) {
             return (cell.getTop() >= (scrollOffset - renderOffset) ||
                     cell.getBottom() >= (scrollOffset - renderOffset)) &&
-                   (cell.getTop() <= scrollOffset + windowSize ||
-                    cell.getBottom() <= scrollOffset + windowSize);
+                   (cell.getTop() <= scrollOffset + windowSize || cell.getBottom() <= scrollOffset + windowSize);
         } else {
             return (cell.getLeft() >= (scrollOffset - renderOffset) ||
                     cell.getRight() >= (scrollOffset - renderOffset)) &&
-                   (cell.getLeft() <= scrollOffset + windowSize ||
-                    cell.getRight() <= scrollOffset + windowSize);
+                   (cell.getLeft() <= scrollOffset + windowSize || cell.getRight() <= scrollOffset + windowSize);
         }
     }
 } // namespace rnoh
