@@ -10,7 +10,7 @@ namespace rnoh {
     }
 
     void AutoLayoutNode::insertChild(ArkUINode &child, std::size_t index) {
-        maybeThrow(NativeNodeApi::getInstance()->addChild(m_nodeHandle, child.getArkUINodeHandle()));
+        maybeThrow(NativeNodeApi::getInstance()->insertChildAt(m_nodeHandle, child.getArkUINodeHandle(), index));
     }
 
     void AutoLayoutNode::removeChild(ArkUINode &child) {
