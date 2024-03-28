@@ -4,7 +4,7 @@
 // Node APIs are not fully supported. To solve the compilation error of the interface cannot befoun,
 // please include "napai/native_api.h".
 
-#include <arkui/native_interface.h>
+//#include <arkui/native_interface.h>
 #include <react/renderer/components/view/ViewProps.h>
 #include <glog/logging.h>
 #include <chrono>

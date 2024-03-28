@@ -77,8 +77,8 @@ namespace rnoh {
                       << &parentScrollView->getLocalRootArkUINode();
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> parentScrollView nodeHandle address:"
                       << parentScrollView->getLocalRootArkUINode().getArkUINodeHandle();
-            auto scrollOffset = alShadow.horizontal ? parentScrollView->getLocalRootArkUINode().getScrollOffset().x
-                                                    : parentScrollView->getLocalRootArkUINode().getScrollOffset().y;
+            auto scrollOffset = alShadow.horizontal ? parentScrollView->getScrollViewMetrics().contentOffset.x
+                                                    : parentScrollView->getScrollViewMetrics().contentOffset.y;
 
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollOffset:" << scrollOffset;
             auto startOffset = alShadow.horizontal ? getLeft() : getTop();
