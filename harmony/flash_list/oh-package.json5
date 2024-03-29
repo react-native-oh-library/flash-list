@@ -1,6 +1,6 @@
 {
-  "name": "rnoh-flash-list",
-  "version": "1.6.3-0.2.3",
+  "name": "@react-native-oh-tpl/flash-list",
+  "version": "1.6.3-0.2.5",
   "description": "Native part of react-harmony-flash-list",
   "main": "index.ets",
   "author": "Huawei",
