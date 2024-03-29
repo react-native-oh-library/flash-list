@@ -2,9 +2,10 @@
 #include "Props.h"
 #include "RNOH/CppComponentInstance.h"
 #include "RNOH/arkui/StackNode.h"
+#include "ShadowNodes.h"
 
 namespace rnoh {
-    class CellContainerComponentInstance : public CppComponentInstance {
+    class CellContainerComponentInstance : public CppComponentInstance<facebook::react::CellContainerShadowNode> {
     private:
         StackNode m_stackNode;
         int index{-1};
@@ -12,9 +13,9 @@ namespace rnoh {
     public:
         CellContainerComponentInstance(Context context);
 
-        void insertChild(ComponentInstance::Shared childComponentInstance, std::size_t index) override;
+        void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;
 
-        void removeChild(ComponentInstance::Shared childComponentInstance) override;
+        void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
 
         StackNode &getLocalRootArkUINode() override;
 
@@ -34,6 +35,6 @@ namespace rnoh {
         void setWidth(facebook::react::Float const &);
         facebook::react::Float getWidth();
 
-        void setProps(facebook::react::Props::Shared props) override;
+        void onPropsChanged(SharedConcreteProps const &props) override;
     };
 } // namespace rnoh

@@ -5,14 +5,14 @@ namespace rnoh {
     CellContainerComponentInstance::CellContainerComponentInstance(Context context)
         : CppComponentInstance(std::move(context)) {}
 
-    void CellContainerComponentInstance::insertChild(ComponentInstance::Shared childComponentInstance,
-                                                     std::size_t index) {
-        CppComponentInstance::insertChild(childComponentInstance, index);
+    void CellContainerComponentInstance::onChildInserted(ComponentInstance::Shared const &childComponentInstance,
+                                                         std::size_t index) {
+        CppComponentInstance::onChildInserted(childComponentInstance, index);
         m_stackNode.insertChild(childComponentInstance->getLocalRootArkUINode(), index);
     }
 
-    void CellContainerComponentInstance::removeChild(ComponentInstance::Shared childComponentInstance) {
-        CppComponentInstance::removeChild(childComponentInstance);
+    void CellContainerComponentInstance::onChildRemoved(ComponentInstance::Shared const &childComponentInstance) {
+        CppComponentInstance::onChildRemoved(childComponentInstance);
         m_stackNode.removeChild(childComponentInstance->getLocalRootArkUINode());
     };
 
@@ -50,12 +50,10 @@ namespace rnoh {
     }
     facebook::react::Float CellContainerComponentInstance::getWidth() { return m_layoutMetrics.frame.size.width; }
 
-    void CellContainerComponentInstance::setProps(facebook::react::Props::Shared props) {
-        CppComponentInstance::setProps(props);
-        if (auto p = std::dynamic_pointer_cast<const facebook::react::CellContainerProps>(props)) {
-            LOG(INFO) << "[clx] CellContainerComponentInstance::setProps" << p->index;
-            this->setIndex(p->index);
-        }
+    void CellContainerComponentInstance::onPropsChanged(SharedConcreteProps const &props) {
+        CppComponentInstance::onPropsChanged(props);
+        LOG(INFO) << "[clx] CellContainerComponentInstance::setProps" << props->index;
+        this->setIndex(props->index);
     }
 
 } // namespace rnoh

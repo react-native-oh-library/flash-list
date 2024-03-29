@@ -11,16 +11,15 @@ namespace rnoh {
         m_autoLayoutNode.setAutoLayoutNodeDelegate(this);
     }
 
-    void AutoLayoutViewComponentInstance::insertChild(ComponentInstance::Shared childComponentInstance,
-                                                      std::size_t index) {
-        CppComponentInstance::insertChild(childComponentInstance, index);
+    void AutoLayoutViewComponentInstance::onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) {
+        CppComponentInstance::onChildInserted(childComponentInstance, index);
         m_autoLayoutNode.insertChild(childComponentInstance->getLocalRootArkUINode(), index);
     }
 
     AutoLayoutNode &AutoLayoutViewComponentInstance::getLocalRootArkUINode() { return m_autoLayoutNode; }
 
-    void AutoLayoutViewComponentInstance::removeChild(ComponentInstance::Shared childComponentInstance) {
-        CppComponentInstance::removeChild(childComponentInstance);
+    void AutoLayoutViewComponentInstance::onChildRemoved(ComponentInstance::Shared const &childComponentInstance) {
+        CppComponentInstance::onChildRemoved(childComponentInstance);
         m_autoLayoutNode.removeChild(childComponentInstance->getLocalRootArkUINode());
     };
 
@@ -68,6 +67,7 @@ namespace rnoh {
 
         parentScrollView = getParentScrollView();
         if (enableInstrumentation && parentScrollView != nullptr) {
+            // TODO get containerSize
             auto scrollContainerSize = alShadow.horizontal
                                            ? parentScrollView->getScrollViewMetrics().containerSize.width
                                            : parentScrollView->getScrollViewMetrics().containerSize.height;
@@ -77,8 +77,8 @@ namespace rnoh {
                       << &parentScrollView->getLocalRootArkUINode();
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> parentScrollView nodeHandle address:"
                       << parentScrollView->getLocalRootArkUINode().getArkUINodeHandle();
-            auto scrollOffset = alShadow.horizontal ? parentScrollView->getLocalRootArkUINode().getScrollOffset().x
-                                                    : parentScrollView->getLocalRootArkUINode().getScrollOffset().y;
+            auto scrollOffset = alShadow.horizontal ? parentScrollView->getScrollViewMetrics().contentOffset.x
+                                                    : parentScrollView->getScrollViewMetrics().contentOffset.y;
 
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollOffset:" << scrollOffset;
             auto startOffset = alShadow.horizontal ? getLeft() : getTop();
@@ -99,28 +99,24 @@ namespace rnoh {
         }
     }
 
-    void AutoLayoutViewComponentInstance::setProps(facebook::react::Props::Shared props) {
-        CppComponentInstance::setProps(props);
-        auto autoLayoutViewProps = std::dynamic_pointer_cast<const facebook::react::AutoLayoutViewProps>(props);
-        if (autoLayoutViewProps == nullptr) {
-            return;
-        }
-        horizontal = autoLayoutViewProps->horizontal;
-        alShadow.horizontal = autoLayoutViewProps->horizontal;
-        //         scrollOffset = autoLayoutViewProps->scrollOffset;
-        alShadow.scrollOffset = autoLayoutViewProps->scrollOffset;
-        //         windowSize = autoLayoutViewProps->windowSize;
-        alShadow.windowSize = autoLayoutViewProps->windowSize;
-        //         renderAheadOffset = autoLayoutViewProps->renderAheadOffset;
-        alShadow.renderOffset = autoLayoutViewProps->renderAheadOffset;
-        enableInstrumentation = autoLayoutViewProps->enableInstrumentation;
-        disableAutoLayout = autoLayoutViewProps->disableAutoLayout;
+    void AutoLayoutViewComponentInstance::onPropsChanged(SharedConcreteProps const &props) {
+        CppComponentInstance::onPropsChanged(props);
+        horizontal = props->horizontal;
+        alShadow.horizontal = props->horizontal;
+        //         scrollOffset = props->scrollOffset;
+        alShadow.scrollOffset = props->scrollOffset;
+        //         windowSize = props->windowSize;
+        alShadow.windowSize = props->windowSize;
+        //         renderAheadOffset = props->renderAheadOffset;
+        alShadow.renderOffset = props->renderAheadOffset;
+        enableInstrumentation = props->enableInstrumentation;
+        disableAutoLayout = props->disableAutoLayout;
         if (parentScrollView != nullptr) {
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::setProps> onAppear";
             onAppear();
         }
 
-        LOG(INFO) << "[clx] autoLayoutViewProps" << autoLayoutViewProps->renderAheadOffset;
+        LOG(INFO) << "[clx] autoLayoutViewProps" << props->renderAheadOffset;
     }
 
     void AutoLayoutViewComponentInstance::fixLayout() {
@@ -204,16 +200,6 @@ namespace rnoh {
         return nullptr;
     }
 
-    void AutoLayoutViewComponentInstance::setEventEmitter(facebook::react::SharedEventEmitter eventEmitter) {
-        CppComponentInstance::setEventEmitter(eventEmitter);
-        auto autoLayoutViewEventEmitter =
-            std::dynamic_pointer_cast<const facebook::react::AutoLayoutViewEventEmitter>(eventEmitter);
-        if (autoLayoutViewEventEmitter == nullptr) {
-            return;
-        }
-        m_autoLayoutViewEventEmitter = autoLayoutViewEventEmitter;
-    }
-
     void AutoLayoutViewComponentInstance::emitBlankAreaEvent() {
         LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::emitBlankAreaEvent>";
         AutoLayoutViewEventEmitter::OnBlankAreaEvent blankAreaEvent;
@@ -221,6 +207,6 @@ namespace rnoh {
         blankAreaEvent.offsetEnd = static_cast<int>(alShadow.blankOffsetAtEnd / pixelDensity);
         LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::emitBlankAreaEvent> :" << blankAreaEvent.offsetStart
                   << ", " << blankAreaEvent.offsetEnd;
-        m_autoLayoutViewEventEmitter->onBlankAreaEvent(blankAreaEvent);
+        m_eventEmitter->onBlankAreaEvent(blankAreaEvent);
     }
 } // namespace rnoh

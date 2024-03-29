@@ -9,16 +9,16 @@
 
 #include "RNOH/CppComponentInstance.h"
 #include "RNOHCorePackage/ComponentInstances/ScrollViewComponentInstance.h"
-#include "RNOH/arkui/StackNode.h"
 #include "AutoLayoutShadow.h"
 #include "AutoLayoutNode.h"
 #include "EventEmitters.h"
+#include "ShadowNodes.h"
 
 namespace rnoh {
-    class AutoLayoutViewComponentInstance : public CppComponentInstance, public AutoLayoutNodeDelegate {
+    class AutoLayoutViewComponentInstance : public CppComponentInstance<facebook::react::AutoLayoutViewShadowNode>, public AutoLayoutNodeDelegate {
     private:
         AutoLayoutNode m_autoLayoutNode;
-        std::shared_ptr<const facebook::react::AutoLayoutViewEventEmitter> m_autoLayoutViewEventEmitter;
+//         std::shared_ptr<const facebook::react::AutoLayoutViewEventEmitter> m_autoLayoutViewEventEmitter;
         AutoLayoutShadow alShadow{AutoLayoutShadow()};
         bool horizontal{false};
         facebook::react::Float scrollOffset{0.0};
@@ -34,13 +34,13 @@ namespace rnoh {
     public:
         AutoLayoutViewComponentInstance(Context context);
 
-        void insertChild(ComponentInstance::Shared childComponentInstance, std::size_t index) override;
+        void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;
 
-        void removeChild(ComponentInstance::Shared childComponentInstance) override;
+        void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
 
         AutoLayoutNode &getLocalRootArkUINode() override;
 
-        void setProps(facebook::react::Props::Shared props) override;
+        void onPropsChanged(SharedConcreteProps const &props) override;
         void getNapiProps(facebook::react::Props::Shared props);
         void finalizeUpdates() override;
 
@@ -64,7 +64,7 @@ namespace rnoh {
         std::shared_ptr<rnoh::CellContainerComponentInstance> getFooter();
         std::shared_ptr<rnoh::ScrollViewComponentInstance> getParentScrollView();
         void emitBlankAreaEvent() override;
-        void setEventEmitter(facebook::react::SharedEventEmitter eventEmitter) override;
+//         void setEventEmitter(facebook::react::SharedEventEmitter eventEmitter) override;
     };
 } // namespace rnoh
 

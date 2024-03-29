@@ -1,7 +1,7 @@
 {
   "name": "rnoh-flash-list",
-  "version": "1.6.3-0.2.4",
-  "description": "@shopify/flash-list for OpenHarmony",
+  "version": "1.6.3-0.2.3",
+  "description": "Native part of react-harmony-flash-list",
   "main": "index.ets",
   "author": "Huawei",
   "license": "MIT",
