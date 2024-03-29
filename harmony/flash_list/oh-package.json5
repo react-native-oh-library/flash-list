@@ -1,6 +1,6 @@
 {
-  "name": "rnoh-flash-list",
-  "version": "1.6.3-0.2.2",
+  "name": "@react-native-oh-tpl/flash-list",
+  "version": "1.6.3-0.2.3",
   "description": "c-api-foundation",
   "main": "index.ets",
   "author": "Huawei",
