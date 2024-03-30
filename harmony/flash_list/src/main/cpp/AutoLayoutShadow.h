@@ -33,7 +33,7 @@ namespace rnoh {
 
         AutoLayoutShadow(){};
         ~AutoLayoutShadow(){};
-        void clearGapsAndOverlaps(std::vector<ComponentInstance::Shared> sortedItems);
+        void clearGapsAndOverlaps(std::vector<CellContainerComponentInstance::Shared> sortedItems);
         int computeBlankFromGivenOffset(int actualScrollOffset, int distanceFromWindowStart, int distanceFromWindowEnd);
     };
 } // namespace rnoh

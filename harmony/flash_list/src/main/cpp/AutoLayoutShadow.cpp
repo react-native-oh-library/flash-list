@@ -1,13 +1,5 @@
-//
-// Created on 2024/3/3
-//
-// Node APIs are not fully supported. To solve the compilation error of the interface cannot befoun,
-// please include "napai/native_api.h".
-
-#include <arkui/native_interface.h>
 #include <react/renderer/components/view/ViewProps.h>
 #include <glog/logging.h>
-#include <chrono>
 #include <sys/param.h>
 #include <thread>
 #include "AutoLayoutShadow.h"
@@ -17,7 +9,7 @@ namespace rnoh {
     /**checks for overlaps or gaps.between adjacent items and then applies a correction (Only Grid layouts with varying
      * spans) Performance: RecyclerListView renders very small number of views and this is not going to trigger multiple
      * layouts on Android side. Not expecting any major perf issu.*/
-    void AutoLayoutShadow::clearGapsAndOverlaps(std::vector<ComponentInstance::Shared> sortedItems) {
+    void AutoLayoutShadow::clearGapsAndOverlaps(std::vector<CellContainerComponentInstance::Shared> sortedItems) {
         if (sortedItems.empty()) {
             return;
         }
@@ -26,21 +18,12 @@ namespace rnoh {
         int maxBoundNeighbour = 0;
         lastMaxBoundOverall = 0;
         for (int i = 0; i < sortedItems.size() - 1; i++) {
-            auto cell = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(sortedItems[i]);
-            auto neighbour = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(sortedItems[i + 1]);
+            auto cell = sortedItems[i];
+            auto neighbour = sortedItems[i + 1];
             // Only apply correction if the next cell is consecutive.
             bool isNeighbourConsecutive = neighbour->getIndex() == cell->getIndex() + 1;
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> isNeighbourConsecutive: "
-                      << isNeighbourConsecutive;
             if (isWithinBounds(*cell)) {
-                LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> isWithinBounds!";
                 if (!horizontal) {
-                    //                     LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> cell.bottom" <<
-                    //                     cell->getBottom(); LOG(INFO) << "[clx]
-                    //                     <AutoLayoutViewComponentInstance::shadow> cell.top" << cell->getTop();
-                    //                     LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::shadow> cell.left" <<
-                    //                     cell->getLeft(); LOG(INFO) << "[clx]
-                    //                     <AutoLayoutViewComponentInstance::shadow> cell.right" << cell->getRight();
                     maxBound = MAX(maxBound, cell->getBottom());
                     minBound = MIN(minBound, cell->getTop());
                     maxBoundNeighbour = maxBound;
@@ -93,8 +76,8 @@ namespace rnoh {
                 lastMaxBoundOverall = MAX(lastMaxBoundOverall, cell->getBottom());
                 lastMaxBoundOverall = MAX(lastMaxBoundOverall, neighbour->getBottom());
             }
-            //             cell->setLayout(cell->getLayoutMetrics());
-            //             neighbour->setLayout(neighbour->getLayoutMetrics());
+            cell->setLayout(cell->getLayoutMetrics());
+            neighbour->setLayout(neighbour->getLayoutMetrics());
         }
         lastMaxBound = maxBoundNeighbour;
         lastMinBound = minBound;
@@ -104,20 +87,8 @@ namespace rnoh {
      * offset taken directly from scrollview object*/
     int AutoLayoutShadow::computeBlankFromGivenOffset(int actualScrollOffset, int distanceFromWindowStart,
                                                       int distanceFromWindowEnd) {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> actualScrollOffset:"
-                  << actualScrollOffset;
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> offsetFromStart:"
-                  << offsetFromStart;
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> lastMinBound:"
-                  << lastMinBound;
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> lastMaxBound:"
-                  << lastMaxBound;
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> windowSize:" << windowSize;
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::computeBlankFromGivenOffset> renderOffset:"
-                  << renderOffset;
-        auto scrollOffset = actualScrollOffset - offsetFromStart;
-        blankOffsetAtStart = lastMinBound - scrollOffset - distanceFromWindowStart;
-        blankOffsetAtEnd = scrollOffset + windowSize - renderOffset - lastMaxBound - distanceFromWindowEnd;
+        blankOffsetAtStart = lastMinBound - actualScrollOffset - distanceFromWindowStart;
+        blankOffsetAtEnd = actualScrollOffset + windowSize - renderOffset - lastMaxBound - distanceFromWindowEnd;
         return MAX(blankOffsetAtStart, blankOffsetAtEnd);
     }
 
@@ -125,20 +96,14 @@ namespace rnoh {
      * still remain in the view tree. If views outside get considered then gaps between unused items will cause
      * algorithm to fail.*/
     bool AutoLayoutShadow::isWithinBounds(CellContainerComponentInstance &cell) {
-
-        auto scrollOffset = this->scrollOffset - offsetFromStart;
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::isWithinBounds>: "
-                  << (cell.getTop() >= (scrollOffset - renderOffset) ||
-                      cell.getBottom() >= (scrollOffset - renderOffset)) &&
-            (cell.getTop() <= scrollOffset + windowSize || cell.getBottom() <= scrollOffset + windowSize);
+        auto boundsStart = scrollOffset - renderOffset;
+        auto boundsEnd = scrollOffset + windowSize;
         if (!this->horizontal) {
-            return (cell.getTop() >= (scrollOffset - renderOffset) ||
-                    cell.getBottom() >= (scrollOffset - renderOffset)) &&
-                   (cell.getTop() <= scrollOffset + windowSize || cell.getBottom() <= scrollOffset + windowSize);
+            return (cell.getTop() >= boundsStart || cell.getBottom() >= boundsStart) &&
+                   (cell.getTop() <= boundsEnd || cell.getBottom() <= boundsEnd);
         } else {
-            return (cell.getLeft() >= (scrollOffset - renderOffset) ||
-                    cell.getRight() >= (scrollOffset - renderOffset)) &&
-                   (cell.getLeft() <= scrollOffset + windowSize || cell.getRight() <= scrollOffset + windowSize);
+            return (cell.getLeft() >= boundsStart || cell.getRight() >= boundsStart) &&
+                   (cell.getLeft() <= boundsEnd || cell.getRight() <= boundsEnd);
         }
     }
 } // namespace rnoh

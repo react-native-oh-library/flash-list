@@ -11,6 +11,7 @@ namespace rnoh {
         int index{-1};
 
     public:
+        using Shared = std::shared_ptr<CellContainerComponentInstance>;
         CellContainerComponentInstance(Context context);
 
         void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;

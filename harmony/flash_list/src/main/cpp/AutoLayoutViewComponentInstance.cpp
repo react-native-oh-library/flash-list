@@ -4,6 +4,7 @@
 #include "folly/synchronization/Lock.h"
 #include <mutex>
 #include <sys/param.h>
+
 namespace rnoh {
 
     AutoLayoutViewComponentInstance::AutoLayoutViewComponentInstance(Context context)
@@ -11,7 +12,8 @@ namespace rnoh {
         m_autoLayoutNode.setAutoLayoutNodeDelegate(this);
     }
 
-    void AutoLayoutViewComponentInstance::onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) {
+    void AutoLayoutViewComponentInstance::onChildInserted(ComponentInstance::Shared const &childComponentInstance,
+                                                          std::size_t index) {
         CppComponentInstance::onChildInserted(childComponentInstance, index);
         m_autoLayoutNode.insertChild(childComponentInstance->getLocalRootArkUINode(), index);
     }
@@ -24,40 +26,22 @@ namespace rnoh {
     };
 
     void AutoLayoutViewComponentInstance::finalizeUpdates() {
-        if (parentScrollView != nullptr) {
+        if (getParentScrollView() != nullptr) {
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::finalizeUpdates>";
             onAppear();
         }
-        this->getLocalRootArkUINode().markDirty();
+        ComponentInstance::finalizeUpdates();
     }
 
-    void AutoLayoutViewComponentInstance::setLeft(facebook::react::Float const &left) {
-        m_layoutMetrics.frame.origin.x = left;
-    }
     facebook::react::Float AutoLayoutViewComponentInstance::getLeft() { return m_layoutMetrics.frame.origin.x; }
-    void AutoLayoutViewComponentInstance::setTop(facebook::react::Float const &top) {
-        m_layoutMetrics.frame.origin.y = top;
-    }
     facebook::react::Float AutoLayoutViewComponentInstance::getTop() { return m_layoutMetrics.frame.origin.y; }
-    void AutoLayoutViewComponentInstance::setRight(facebook::react::Float const &right) {
-        m_layoutMetrics.frame.origin.x = right - m_layoutMetrics.frame.size.width;
-    }
     facebook::react::Float AutoLayoutViewComponentInstance::getRight() {
         return m_layoutMetrics.frame.origin.x + m_layoutMetrics.frame.size.width;
-    }
-    void AutoLayoutViewComponentInstance::setBottom(facebook::react::Float const &bottom) {
-        m_layoutMetrics.frame.origin.y = bottom - m_layoutMetrics.frame.size.height;
     }
     facebook::react::Float AutoLayoutViewComponentInstance::getBottom() {
         return m_layoutMetrics.frame.origin.y + m_layoutMetrics.frame.size.height;
     }
-    void AutoLayoutViewComponentInstance::setHeight(facebook::react::Float const &height) {
-        m_layoutMetrics.frame.size.height = height;
-    }
     facebook::react::Float AutoLayoutViewComponentInstance::getHeight() { return m_layoutMetrics.frame.size.height; }
-    void AutoLayoutViewComponentInstance::setWidth(facebook::react::Float const &width) {
-        m_layoutMetrics.frame.size.width = width;
-    }
     facebook::react::Float AutoLayoutViewComponentInstance::getWidth() { return m_layoutMetrics.frame.size.width; }
 
     void AutoLayoutViewComponentInstance::onAppear() {
@@ -67,32 +51,30 @@ namespace rnoh {
 
         parentScrollView = getParentScrollView();
         if (enableInstrumentation && parentScrollView != nullptr) {
-            // TODO get containerSize
-            auto scrollContainerSize = alShadow.horizontal
-                                           ? parentScrollView->getScrollViewMetrics().containerSize.width
-                                           : parentScrollView->getScrollViewMetrics().containerSize.height;
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollContainerSize:"
+            auto scrollContainerSize = alShadow.horizontal ? parentScrollView->getLayoutMetrics().frame.size.width
+                                                           : parentScrollView->getLayoutMetrics().frame.size.height;
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollContainerSize:"
                       << scrollContainerSize;
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> parentScrollView node address:"
-                      << &parentScrollView->getLocalRootArkUINode();
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> parentScrollView nodeHandle address:"
-                      << parentScrollView->getLocalRootArkUINode().getArkUINodeHandle();
-            auto scrollOffset = alShadow.horizontal ? parentScrollView->getScrollViewMetrics().contentOffset.x
-                                                    : parentScrollView->getScrollViewMetrics().contentOffset.y;
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> contentSize.height:"
+                      << parentScrollView->getScrollViewMetrics().contentSize.height;
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> containerSize.height:"
+                      << parentScrollView->getScrollViewMetrics().containerSize.height;
+            auto currentScrollOffset = alShadow.horizontal ? parentScrollView->getScrollViewMetrics().contentOffset.x
+                                                           : parentScrollView->getScrollViewMetrics().contentOffset.y;
 
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollOffset:" << scrollOffset;
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> scrollOffset:" << currentScrollOffset;
             auto startOffset = alShadow.horizontal ? getLeft() : getTop();
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> startOffset:" << startOffset;
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> startOffset:" << startOffset;
             auto endOffset = alShadow.horizontal ? getRight() : getBottom();
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> endOffset:" << endOffset;
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> endOffset:" << endOffset;
 
-            auto distanceFromWindowStart = MAX(startOffset - scrollOffset, 0);
-            auto distanceFromWindowEnd = MAX(scrollOffset + scrollContainerSize - endOffset, 0);
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> distanceFromWindowStart:"
+            auto distanceFromWindowStart = MAX(startOffset - currentScrollOffset, 0);
+            auto distanceFromWindowEnd = MAX(currentScrollOffset + scrollContainerSize - endOffset, 0);
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> distanceFromWindowStart:"
                       << distanceFromWindowStart;
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> distanceFromWindowEnd:"
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> distanceFromWindowEnd:"
                       << distanceFromWindowEnd;
-            alShadow.computeBlankFromGivenOffset(static_cast<int>(scrollOffset),
+            alShadow.computeBlankFromGivenOffset(static_cast<int>(currentScrollOffset - startOffset),
                                                  static_cast<int>(distanceFromWindowStart),
                                                  static_cast<int>(distanceFromWindowEnd));
             emitBlankAreaEvent();
@@ -103,36 +85,42 @@ namespace rnoh {
         CppComponentInstance::onPropsChanged(props);
         horizontal = props->horizontal;
         alShadow.horizontal = props->horizontal;
-        //         scrollOffset = props->scrollOffset;
         alShadow.scrollOffset = props->scrollOffset;
-        //         windowSize = props->windowSize;
         alShadow.windowSize = props->windowSize;
-        //         renderAheadOffset = props->renderAheadOffset;
         alShadow.renderOffset = props->renderAheadOffset;
         enableInstrumentation = props->enableInstrumentation;
         disableAutoLayout = props->disableAutoLayout;
         if (parentScrollView != nullptr) {
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::setProps> onAppear";
+            DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::setProps> onPropsChanged";
             onAppear();
         }
-
-        LOG(INFO) << "[clx] autoLayoutViewProps" << props->renderAheadOffset;
     }
 
+    /** Sorts views by index and then invokes clearGaps which does the correction.
+     * Performance: Sort is needed. Given relatively low number of views in RecyclerListView render tree this should be
+     * a non issue.*/
     void AutoLayoutViewComponentInstance::fixLayout() {
         LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::fixLayout> childCount: " << getChildren().size();
-        if (getChildren().size() > 1 && !disableAutoLayout) {
-            alShadow.offsetFromStart = alShadow.horizontal ? getLeft() : getTop();
-            alShadow.clearGapsAndOverlaps(getChildren());
-            //             setLayout(m_layoutMetrics);
+        auto children = getChildren();
+        if (children.size() > 1 && !disableAutoLayout) {
+            std::vector<rnoh::CellContainerComponentInstance::Shared> childrenView;
+            for (int i = 0; i < children.size(); i++) {
+                auto cell = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(children[i]);
+                childrenView.push_back(cell);
+
+                std::sort(childrenView.begin(), childrenView.end(),
+                          [](auto &a, auto &b) { return a->getIndex() < b->getIndex(); });
+
+                alShadow.offsetFromStart = alShadow.horizontal ? getLeft() : getTop();
+                alShadow.clearGapsAndOverlaps(childrenView);
+            }
         }
     }
 
+    /** Fixes footer position along with rest of the items */
     void AutoLayoutViewComponentInstance::fixFooter() {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::fixFooter>";
+        DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::fixFooter>";
         parentScrollView = getParentScrollView();
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::fixFooter> get parentScrollView success!"
-                  << &parentScrollView->getLocalRootArkUINode();
         if (disableAutoLayout || parentScrollView == nullptr) {
             return;
         }
@@ -148,33 +136,45 @@ namespace rnoh {
         if (diff == 0 || footer == nullptr || autoLayoutParent == nullptr) {
             return;
         }
-
         if (alShadow.horizontal) {
-            footer->setLeft(footer->getLeft() + diff);
-            m_layoutMetrics.frame.origin.x += diff;
-            // TODO autoLayoutParent.layoutMetrics.frame.origin.x += diff
+            auto footerLayoutMetrics = footer->getLayoutMetrics();
+            footerLayoutMetrics.frame.origin.x += diff;
+            footer->setLayout(footerLayoutMetrics);
+
+            m_layoutMetrics.frame.size.width += diff;
+            setLayout(m_layoutMetrics);
+
+            auto parentLayoutMetrics = autoLayoutParent->getLayoutMetrics();
+            parentLayoutMetrics.frame.size.width += diff;
+            autoLayoutParent->setLayout(parentLayoutMetrics);
         } else {
-            footer->setTop(footer->getTop() + diff);
-            m_layoutMetrics.frame.origin.y += diff;
-            // TODO autoLayoutParent.layoutMetrics.frame.origin.y += diff
+            auto footerLayoutMetrics = footer->getLayoutMetrics();
+            footerLayoutMetrics.frame.origin.y += diff;
+            footer->setLayout(footerLayoutMetrics);
+
+            m_layoutMetrics.frame.size.height += diff;
+            setLayout(m_layoutMetrics);
+
+            auto parentLayoutMetrics = autoLayoutParent->getLayoutMetrics();
+            parentLayoutMetrics.frame.size.height += diff;
+            autoLayoutParent->setLayout(parentLayoutMetrics);
         }
-        footer->setLayout(footer->getLayoutMetrics());
     }
 
     int AutoLayoutViewComponentInstance::getFooterDiff() {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getFooterDiff>";
+        DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getFooterDiff>";
         if (getChildren().empty()) {
             alShadow.lastMaxBoundOverall = 0;
         } else if (getChildren().size() == 1) {
             auto firstChild = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(getChildren()[0]);
             alShadow.lastMaxBoundOverall = alShadow.horizontal ? firstChild->getRight() : firstChild->getBottom();
         }
-        auto autoLayoutEnd = alShadow.horizontal ? getRight() - getLeft() : getBottom() - getTop();
+        auto autoLayoutEnd = alShadow.horizontal ? getWidth() : getHeight();
         return alShadow.lastMaxBoundOverall - autoLayoutEnd;
     }
 
     std::shared_ptr<rnoh::CellContainerComponentInstance> AutoLayoutViewComponentInstance::getFooter() {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getFooter>";
+        DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getFooter>";
         for (auto const child : getChildren()) {
             auto childInstance = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(child);
             if (childInstance != nullptr && childInstance->getIndex() == -1) {
@@ -185,14 +185,11 @@ namespace rnoh {
     }
 
     std::shared_ptr<rnoh::ScrollViewComponentInstance> AutoLayoutViewComponentInstance::getParentScrollView() {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getParentScrollView>";
+        DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getParentScrollView>";
         auto autoLayoutParent = getParent().lock();
         while (autoLayoutParent) {
-            LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getParentScrollView> Loop!";
             auto scrollView = std::dynamic_pointer_cast<rnoh::ScrollViewComponentInstance>(autoLayoutParent);
             if (scrollView) {
-                LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getParentScrollView> scrollView address: "
-                          << &scrollView->getLocalRootArkUINode();
                 return scrollView;
             }
             autoLayoutParent = autoLayoutParent->getParent().lock();
@@ -201,7 +198,7 @@ namespace rnoh {
     }
 
     void AutoLayoutViewComponentInstance::emitBlankAreaEvent() {
-        LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::emitBlankAreaEvent>";
+        DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::emitBlankAreaEvent>";
         AutoLayoutViewEventEmitter::OnBlankAreaEvent blankAreaEvent;
         blankAreaEvent.offsetStart = static_cast<int>(alShadow.blankOffsetAtStart / pixelDensity);
         blankAreaEvent.offsetEnd = static_cast<int>(alShadow.blankOffsetAtEnd / pixelDensity);
