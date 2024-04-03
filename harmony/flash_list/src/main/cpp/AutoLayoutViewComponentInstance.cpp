@@ -1,3 +1,27 @@
+/**
+ * MIT License
+ *
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "AutoLayoutViewComponentInstance.h"
 #include "RNOHCorePackage/ComponentInstances/ViewComponentInstance.h"
 #include "folly/Synchronized.h"
@@ -26,7 +50,7 @@ namespace rnoh {
     };
 
     void AutoLayoutViewComponentInstance::finalizeUpdates() {
-        if (getParentScrollView() != nullptr) {
+        if (parentScrollView != nullptr) {
             LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::finalizeUpdates>";
             onAppear();
         }
@@ -74,9 +98,9 @@ namespace rnoh {
                       << distanceFromWindowStart;
             DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::onAppear> distanceFromWindowEnd:"
                       << distanceFromWindowEnd;
-            alShadow.computeBlankFromGivenOffset(static_cast<int>(currentScrollOffset - startOffset),
-                                                 static_cast<int>(distanceFromWindowStart),
-                                                 static_cast<int>(distanceFromWindowEnd));
+            alShadow.computeBlankFromGivenOffset(currentScrollOffset - startOffset,
+                                                 distanceFromWindowStart,
+                                                 distanceFromWindowEnd);
             emitBlankAreaEvent();
         }
     }
@@ -106,14 +130,13 @@ namespace rnoh {
             std::vector<rnoh::CellContainerComponentInstance::Shared> childrenView;
             for (int i = 0; i < children.size(); i++) {
                 auto cell = std::dynamic_pointer_cast<rnoh::CellContainerComponentInstance>(children[i]);
-                childrenView.push_back(cell);
-
-                std::sort(childrenView.begin(), childrenView.end(),
-                          [](auto &a, auto &b) { return a->getIndex() < b->getIndex(); });
-
-                alShadow.offsetFromStart = alShadow.horizontal ? getLeft() : getTop();
-                alShadow.clearGapsAndOverlaps(childrenView);
+                childrenView.push_back(cell);                
             }
+            std::sort(childrenView.begin(), childrenView.end(),
+                    [](auto &a, auto &b) { return a->getIndex() < b->getIndex(); });
+
+            alShadow.offsetFromStart = alShadow.horizontal ? getLeft() : getTop();
+            alShadow.clearGapsAndOverlaps(childrenView);
         }
     }
 
@@ -161,7 +184,7 @@ namespace rnoh {
         }
     }
 
-    int AutoLayoutViewComponentInstance::getFooterDiff() {
+    facebook::react::Float AutoLayoutViewComponentInstance::getFooterDiff() {
         DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::getFooterDiff>";
         if (getChildren().empty()) {
             alShadow.lastMaxBoundOverall = 0;
@@ -200,8 +223,8 @@ namespace rnoh {
     void AutoLayoutViewComponentInstance::emitBlankAreaEvent() {
         DLOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::emitBlankAreaEvent>";
         AutoLayoutViewEventEmitter::OnBlankAreaEvent blankAreaEvent;
-        blankAreaEvent.offsetStart = static_cast<int>(alShadow.blankOffsetAtStart / pixelDensity);
-        blankAreaEvent.offsetEnd = static_cast<int>(alShadow.blankOffsetAtEnd / pixelDensity);
+        blankAreaEvent.offsetStart = alShadow.blankOffsetAtStart / pixelDensity;
+        blankAreaEvent.offsetEnd = alShadow.blankOffsetAtEnd / pixelDensity;
         LOG(INFO) << "[clx] <AutoLayoutViewComponentInstance::emitBlankAreaEvent> :" << blankAreaEvent.offsetStart
                   << ", " << blankAreaEvent.offsetEnd;
         m_eventEmitter->onBlankAreaEvent(blankAreaEvent);

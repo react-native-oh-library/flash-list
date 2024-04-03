@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,8 +43,8 @@ class AutoLayoutViewEventEmitRequestHandler : public EventEmitRequestHandler {
       if (eventEmitter == nullptr) {
         return;
       }
-      int offsetStart = (int) arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetStart"));
-      int offsetEnd = (int) arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetEnd"));
+      facebook::react::Float offsetStart = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetStart"));
+      facebook::react::Float offsetEnd = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetEnd"));
       react::AutoLayoutViewEventEmitter::OnBlankAreaEvent event{offsetStart, offsetEnd};
       eventEmitter->onBlankAreaEvent(event);
     };
