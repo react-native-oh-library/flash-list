@@ -37,9 +37,9 @@ namespace rnoh {
         if (sortedItems.empty()) {
             return;
         }
-        int maxBound = 0;
-        int minBound = INT_MAX;
-        int maxBoundNeighbour = 0;
+        Float maxBound = 0;
+        Float minBound = INT_MAX;
+        Float maxBoundNeighbour = 0;
         lastMaxBoundOverall = 0;
         for (int i = 0; i < sortedItems.size() - 1; i++) {
             auto cell = sortedItems[i];
