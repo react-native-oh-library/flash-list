@@ -23,7 +23,7 @@
  */
 
 import { CellContainerDescriptor } from "./RNCellContainer";
-import { RNOHContext } from 'rnoh';
+import { RNOHContext } from '@rnoh/react-native-openharmony';
 import Logger from './Logger';
 
 export class AutoLayoutShadow {

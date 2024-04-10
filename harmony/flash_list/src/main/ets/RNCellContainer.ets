@@ -34,7 +34,7 @@ import {
   BorderColors,
   Tag,
   ViewDescriptorWrapperBase
-} from 'rnoh';
+} from '@rnoh/react-native-openharmony';
 import Logger from './Logger';
 
 export const CELL_CONTAINER_TYPE: string = "CellContainer";

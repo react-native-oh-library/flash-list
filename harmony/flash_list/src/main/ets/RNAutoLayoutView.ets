@@ -32,13 +32,13 @@ import {
   ViewRawProps,
   Tag,
   ViewDescriptorWrapperBase,
-} from 'rnoh';
-import { ScrollViewDescriptor } from 'rnoh/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollView'
-import { ViewBaseDescriptor } from 'rnoh/src/main/ets/RNOHCorePackage/components/RNViewBase/RNViewBase'
+} from '@rnoh/react-native-openharmony';
+import { ScrollViewDescriptor } from '@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollView'
+import { ViewBaseDescriptor } from '@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/components/RNViewBase/RNViewBase'
 import { CellContainerDescriptor } from "./RNCellContainer";
 import { AutoLayoutShadow } from "./RNAutoLayoutShadow";
 import Logger from './Logger';
-import { _RNScrollViewManager } from 'rnoh/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollViewManager';
+import { _RNScrollViewManager } from '@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollViewManager';
 
 export interface AutoLayoutViewState {}
 
