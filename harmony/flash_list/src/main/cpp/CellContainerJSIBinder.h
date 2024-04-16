@@ -22,32 +22,18 @@
  * SOFTWARE.
  */
 
-#ifndef FLASH_SRC_MAIN_CPP_AUTOLAYOUTVIEWEVENTEMITREQUESTHANDLER_H
-#define FLASH_SRC_MAIN_CPP_AUTOLAYOUTVIEWEVENTEMITREQUESTHANDLER_H
+#ifndef FLASH_SRC_MAIN_CPP_CELLCONTAINERJSIBINDER_H
+#define FLASH_SRC_MAIN_CPP_CELLCONTAINERJSIBINDER_H
 
-#include "RNOH/ArkJS.h"
-#include "RNOH/EventEmitRequestHandler.h"
-#include "EventEmitters.h"
+#include "RNOHCorePackage/ComponentBinders/ViewComponentJSIBinder.h"
 
-using namespace facebook;
 namespace rnoh {
-
-class AutoLayoutViewEventEmitRequestHandler : public EventEmitRequestHandler {
-  public:
-    void handleEvent(EventEmitRequestHandler::Context const &ctx) override {
-      if (ctx.eventName != "AutoLayoutView") {
-        return;
-      }
-      ArkJS arkJs(ctx.env);
-      auto eventEmitter = ctx.shadowViewRegistry->getEventEmitter<react::AutoLayoutViewEventEmitter>(ctx.tag);
-      if (eventEmitter == nullptr) {
-        return;
-      }
-      facebook::react::Float offsetStart = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetStart"));
-      facebook::react::Float offsetEnd = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetEnd"));
-      react::AutoLayoutViewEventEmitter::OnBlankAreaEvent event{offsetStart, offsetEnd};
-      eventEmitter->onBlankAreaEvent(event);
+    class CellContainerJSIBinder : public ViewComponentJSIBinder {
+        facebook::jsi::Object createNativeProps(facebook::jsi::Runtime &rt) override {
+            auto object = ViewComponentJSIBinder::createNativeProps(rt);
+            object.setProperty(rt, "index", "int");
+            return object;
+        }
     };
-};
 } // namespace rnoh
 #endif

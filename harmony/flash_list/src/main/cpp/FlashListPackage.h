@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,35 @@
 #include "ComponentDescriptors.h"
 #include "RNOH/Package.h"
 #include "AutoLayoutViewJSIBinder.h"
+#include "CellContainerJSIBinder.h"
 #include "AutoLayoutViewEventEmitRequestHandler.h"
+#include "AutoLayoutViewComponentInstance.h"
+#include "CellContainerComponentInstance.h"
 
 using namespace rnoh;
 using namespace facebook;
 
+class FlashListComponentInstanceFactoryDelegate : public ComponentInstanceFactoryDelegate {
+public:
+    using ComponentInstanceFactoryDelegate::ComponentInstanceFactoryDelegate;
+
+    ComponentInstance::Shared create(ComponentInstance::Context ctx) override {
+        if (ctx.componentName == "AutoLayoutView") {
+            return std::make_shared<AutoLayoutViewComponentInstance>(std::move(ctx));
+        } else if (ctx.componentName == "CellContainer") {
+            return std::make_shared<CellContainerComponentInstance>(std::move(ctx));
+        }
+        return nullptr;
+    }
+};
+
 class FlashListPackage : public Package {
   public:
     FlashListPackage(Package::Context ctx) : Package(ctx) {}
+
+    ComponentInstanceFactoryDelegate::Shared createComponentInstanceFactoryDelegate() override {
+        return std::make_shared<FlashListComponentInstanceFactoryDelegate>();
+    }
 
     std::vector<facebook::react::ComponentDescriptorProvider> createComponentDescriptorProviders() override {
       return {
@@ -47,7 +68,7 @@ class FlashListPackage : public Package {
     ComponentJSIBinderByString createComponentJSIBinderByName() override {
       return {
         {"AutoLayoutView", std::make_shared<AutoLayoutViewJSIBinder>()},
-        {"CellContainer", std::make_shared<ViewComponentJSIBinder>()}
+        {"CellContainer", std::make_shared<CellContainerJSIBinder>()}
       };
     };
 

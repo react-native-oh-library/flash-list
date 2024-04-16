@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,13 +32,13 @@ import {
   ViewRawProps,
   Tag,
   ViewDescriptorWrapperBase,
-} from 'rnoh';
-import { ScrollViewDescriptor } from 'rnoh/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollView'
-import { ViewBaseDescriptor } from 'rnoh/src/main/ets/RNOHCorePackage/components/RNViewBase/RNViewBase'
+} from '@rnoh/react-native-openharmony';
+import { ScrollViewDescriptor } from '@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollView'
+import { ViewBaseDescriptor } from '@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/components/RNViewBase/RNViewBase'
 import { CellContainerDescriptor } from "./RNCellContainer";
 import { AutoLayoutShadow } from "./RNAutoLayoutShadow";
 import Logger from './Logger';
-import { _RNScrollViewManager } from 'rnoh/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollViewManager';
+import { _RNScrollViewManager } from '@rnoh/react-native-openharmony/src/main/ets/RNOHCorePackage/components/RNScrollView/RNScrollViewManager';
 
 export interface AutoLayoutViewState {}
 
