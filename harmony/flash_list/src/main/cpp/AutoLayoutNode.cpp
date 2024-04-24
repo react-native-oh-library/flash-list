@@ -30,7 +30,7 @@ namespace rnoh {
 
     AutoLayoutNode::AutoLayoutNode()
         : ArkUINode(NativeNodeApi::getInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_STACK)) {
-        maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR, 0, nullptr));
+        maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR, 0, this));
     }
 
     void AutoLayoutNode::insertChild(ArkUINode &child, std::size_t index) {
