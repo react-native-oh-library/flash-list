@@ -57,12 +57,6 @@ namespace rnoh {
         NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR);
     }
 
-    void AutoLayoutNode::setMargin(float top, float right, float bottom, float left) {
-        ArkUI_NumberValue value[] = {top, right, bottom, left};
-        ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue)};
-        maybeThrow(NativeNodeApi::getInstance()->setAttribute(m_nodeHandle, NODE_MARGIN, &item));
-    }
-
     void AutoLayoutNode::setAlign(int32_t align) {
         ArkUI_NumberValue value[] = {{.i32 = align}};
         ArkUI_AttributeItem item = {.value = value, .size = 1};

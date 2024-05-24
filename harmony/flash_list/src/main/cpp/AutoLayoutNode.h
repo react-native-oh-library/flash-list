@@ -48,9 +48,6 @@ namespace rnoh {
         void removeChild(ArkUINode &child);
         void onNodeEvent(ArkUI_NodeEventType eventType, EventArgs& eventArgs) override;
         void setAutoLayoutNodeDelegate(AutoLayoutNodeDelegate *autoLayoutNodeDelegate);
-
-        void setMargin(float top, float right, float bottom, float left);
-
         void setAlign(int32_t align);
     };
 
