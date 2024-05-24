@@ -23,15 +23,14 @@
  */
 
 #pragma once
-#include "Props.h"
 #include "RNOH/CppComponentInstance.h"
-#include "RNOH/arkui/StackNode.h"
 #include "ShadowNodes.h"
+#include "FlashListStackNode.h"
 
 namespace rnoh {
     class CellContainerComponentInstance : public CppComponentInstance<facebook::react::CellContainerShadowNode> {
     private:
-        StackNode m_stackNode;
+        FlashListStackNode m_stackNode;
         int index{-1};
 
     public:
@@ -42,7 +41,7 @@ namespace rnoh {
 
         void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
 
-        StackNode &getLocalRootArkUINode() override;
+        FlashListStackNode &getLocalRootArkUINode() override;
 
         void setIndex(int const &);
         int getIndex();
