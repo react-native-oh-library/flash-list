@@ -40,7 +40,7 @@ namespace rnoh {
         m_stackNode.removeChild(childComponentInstance->getLocalRootArkUINode());
     };
 
-    StackNode &CellContainerComponentInstance::getLocalRootArkUINode() { return m_stackNode; }
+    FlashListStackNode &CellContainerComponentInstance::getLocalRootArkUINode() { return m_stackNode; }
 
     void CellContainerComponentInstance::setIndex(int const &index) { this->index = index; }
     int CellContainerComponentInstance::getIndex() { return index; }

@@ -30,7 +30,7 @@ namespace rnoh {
 
     AutoLayoutNode::AutoLayoutNode()
         : ArkUINode(NativeNodeApi::getInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_STACK)) {
-        maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR, 0));
+        maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR, 0, this));
     }
 
     void AutoLayoutNode::insertChild(ArkUINode &child, std::size_t index) {
@@ -41,9 +41,9 @@ namespace rnoh {
         maybeThrow(NativeNodeApi::getInstance()->removeChild(m_nodeHandle, child.getArkUINodeHandle()));
     }
 
-    void AutoLayoutNode::onNodeEvent(ArkUI_NodeEvent *event) {
+    void AutoLayoutNode::onNodeEvent(ArkUI_NodeEventType eventType, EventArgs& eventArgs) {
         LOG(INFO) << "[clx] <AutoLayoutNode::onNodeEvent> in!";
-        if (event->kind == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
+        if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
             LOG(INFO) << "[clx] <AutoLayoutNode::onNodeEvent> onApear!";
             m_autoLayoutNodeDelegate->onAppear();
         }
@@ -55,12 +55,6 @@ namespace rnoh {
 
     AutoLayoutNode::~AutoLayoutNode() {
         NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR);
-    }
-
-    void AutoLayoutNode::setMargin(float top, float right, float bottom, float left) {
-        ArkUI_NumberValue value[] = {top, right, bottom, left};
-        ArkUI_AttributeItem item = {value, sizeof(value) / sizeof(ArkUI_NumberValue)};
-        maybeThrow(NativeNodeApi::getInstance()->setAttribute(m_nodeHandle, NODE_MARGIN, &item));
     }
 
     void AutoLayoutNode::setAlign(int32_t align) {
