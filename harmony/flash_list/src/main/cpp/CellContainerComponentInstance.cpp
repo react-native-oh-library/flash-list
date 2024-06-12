@@ -76,7 +76,6 @@ namespace rnoh {
 
     void CellContainerComponentInstance::onPropsChanged(SharedConcreteProps const &props) {
         CppComponentInstance::onPropsChanged(props);
-        LOG(INFO) << "[clx] CellContainerComponentInstance::setProps" << props->index;
         this->setIndex(props->index);
     }
 
