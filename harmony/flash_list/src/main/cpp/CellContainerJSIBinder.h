@@ -28,12 +28,12 @@
 #include "RNOHCorePackage/ComponentBinders/ViewComponentJSIBinder.h"
 
 namespace rnoh {
-    class CellContainerJSIBinder : public ViewComponentJSIBinder {
-        facebook::jsi::Object createNativeProps(facebook::jsi::Runtime &rt) override {
-            auto object = ViewComponentJSIBinder::createNativeProps(rt);
-            object.setProperty(rt, "index", "int");
-            return object;
-        }
-    };
+class CellContainerJSIBinder : public ViewComponentJSIBinder {
+    facebook::jsi::Object createNativeProps(facebook::jsi::Runtime &rt) override {
+        auto object = ViewComponentJSIBinder::createNativeProps(rt);
+        object.setProperty(rt, "index", "int");
+        return object;
+    }
+};
 } // namespace rnoh
 #endif

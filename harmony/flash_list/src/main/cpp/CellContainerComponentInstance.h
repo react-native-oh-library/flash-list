@@ -28,37 +28,37 @@
 #include "FlashListStackNode.h"
 
 namespace rnoh {
-    class CellContainerComponentInstance : public CppComponentInstance<facebook::react::CellContainerShadowNode> {
-    private:
-        FlashListStackNode m_stackNode;
-        int index{-1};
+class CellContainerComponentInstance : public CppComponentInstance<facebook::react::CellContainerShadowNode> {
+private:
+    FlashListStackNode m_stackNode;
+    int index{-1};
 
-    public:
-        using Shared = std::shared_ptr<CellContainerComponentInstance>;
-        CellContainerComponentInstance(Context context);
+public:
+    using Shared = std::shared_ptr<CellContainerComponentInstance>;
+    CellContainerComponentInstance(Context context);
 
-        void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;
+    void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;
 
-        void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
+    void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
 
-        FlashListStackNode &getLocalRootArkUINode() override;
+    FlashListStackNode &getLocalRootArkUINode() override;
 
-        void setIndex(int const &);
-        int getIndex();
+    void setIndex(int const &);
+    int getIndex();
 
-        void setLeft(facebook::react::Float const &);
-        facebook::react::Float getLeft();
-        void setTop(facebook::react::Float const &);
-        facebook::react::Float getTop();
-        void setRight(facebook::react::Float const &);
-        facebook::react::Float getRight();
-        void setBottom(facebook::react::Float const &);
-        facebook::react::Float getBottom();
-        void setHeight(facebook::react::Float const &);
-        facebook::react::Float getHeight();
-        void setWidth(facebook::react::Float const &);
-        facebook::react::Float getWidth();
+    void setLeft(facebook::react::Float const &);
+    facebook::react::Float getLeft();
+    void setTop(facebook::react::Float const &);
+    facebook::react::Float getTop();
+    void setRight(facebook::react::Float const &);
+    facebook::react::Float getRight();
+    void setBottom(facebook::react::Float const &);
+    facebook::react::Float getBottom();
+    void setHeight(facebook::react::Float const &);
+    facebook::react::Float getHeight();
+    void setWidth(facebook::react::Float const &);
+    facebook::react::Float getWidth();
 
-        void onPropsChanged(SharedConcreteProps const &props) override;
-    };
+    void onPropsChanged(SharedConcreteProps const &props) override;
+};
 } // namespace rnoh

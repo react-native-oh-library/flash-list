@@ -28,36 +28,36 @@
 
 namespace rnoh {
 
-    AutoLayoutNode::AutoLayoutNode()
-        : ArkUINode(NativeNodeApi::getInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_STACK)) {
-        maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR, 0, this));
-    }
+AutoLayoutNode::AutoLayoutNode()
+    : ArkUINode(NativeNodeApi::getInstance()->createNode(ArkUI_NodeType::ARKUI_NODE_STACK)) {
+    maybeThrow(NativeNodeApi::getInstance()->registerNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR, 0, this));
+}
 
-    void AutoLayoutNode::insertChild(ArkUINode &child, std::size_t index) {
-        maybeThrow(NativeNodeApi::getInstance()->insertChildAt(m_nodeHandle, child.getArkUINodeHandle(), index));
-    }
+void AutoLayoutNode::insertChild(ArkUINode &child, std::size_t index) {
+    maybeThrow(NativeNodeApi::getInstance()->insertChildAt(m_nodeHandle, child.getArkUINodeHandle(), index));
+}
 
-    void AutoLayoutNode::removeChild(ArkUINode &child) {
-        maybeThrow(NativeNodeApi::getInstance()->removeChild(m_nodeHandle, child.getArkUINodeHandle()));
-    }
+void AutoLayoutNode::removeChild(ArkUINode &child) {
+    maybeThrow(NativeNodeApi::getInstance()->removeChild(m_nodeHandle, child.getArkUINodeHandle()));
+}
 
-    void AutoLayoutNode::onNodeEvent(ArkUI_NodeEventType eventType, EventArgs& eventArgs) {
-        if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
-            m_autoLayoutNodeDelegate->onAppear();
-        }
+void AutoLayoutNode::onNodeEvent(ArkUI_NodeEventType eventType, EventArgs &eventArgs) {
+    if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
+        m_autoLayoutNodeDelegate->onAppear();
     }
+}
 
-    void AutoLayoutNode::setAutoLayoutNodeDelegate(AutoLayoutNodeDelegate *scrollNodeDelegate) {
-        m_autoLayoutNodeDelegate = scrollNodeDelegate;
-    }
+void AutoLayoutNode::setAutoLayoutNodeDelegate(AutoLayoutNodeDelegate *scrollNodeDelegate) {
+    m_autoLayoutNodeDelegate = scrollNodeDelegate;
+}
 
-    AutoLayoutNode::~AutoLayoutNode() {
-        NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR);
-    }
+AutoLayoutNode::~AutoLayoutNode() {
+    NativeNodeApi::getInstance()->unregisterNodeEvent(m_nodeHandle, NODE_EVENT_ON_APPEAR);
+}
 
-    void AutoLayoutNode::setAlign(int32_t align) {
-        ArkUI_NumberValue value[] = {{.i32 = align}};
-        ArkUI_AttributeItem item = {.value = value, .size = 1};
-        maybeThrow(NativeNodeApi::getInstance()->setAttribute(m_nodeHandle, NODE_STACK_ALIGN_CONTENT, &item));
-    }
+void AutoLayoutNode::setAlign(int32_t align) {
+    ArkUI_NumberValue value[] = {{.i32 = align}};
+    ArkUI_AttributeItem item = {.value = value, .size = 1};
+    maybeThrow(NativeNodeApi::getInstance()->setAttribute(m_nodeHandle, NODE_STACK_ALIGN_CONTENT, &item));
+}
 } // namespace rnoh

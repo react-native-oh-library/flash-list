@@ -28,12 +28,12 @@ namespace facebook {
 namespace react {
 
 void AutoLayoutViewEventEmitter::onBlankAreaEvent(OnBlankAreaEvent event) const {
-  dispatchEvent("blankAreaEvent", [event=std::move(event)](jsi::Runtime &runtime) {
-    auto payload = jsi::Object(runtime);
-    payload.setProperty(runtime, "offsetStart", event.offsetStart);
-    payload.setProperty(runtime, "offsetEnd", event.offsetEnd);
-    return payload;
-  });
+    dispatchEvent("blankAreaEvent", [event = std::move(event)](jsi::Runtime &runtime) {
+        auto payload = jsi::Object(runtime);
+        payload.setProperty(runtime, "offsetStart", event.offsetStart);
+        payload.setProperty(runtime, "offsetEnd", event.offsetEnd);
+        return payload;
+    });
 }
 
 } // namespace react
