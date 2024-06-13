@@ -33,20 +33,20 @@ using namespace facebook;
 namespace rnoh {
 
 class AutoLayoutViewEventEmitRequestHandler : public EventEmitRequestHandler {
-  public:
+public:
     void handleEvent(EventEmitRequestHandler::Context const &ctx) override {
-      if (ctx.eventName != "AutoLayoutView") {
-        return;
-      }
-      ArkJS arkJs(ctx.env);
-      auto eventEmitter = ctx.shadowViewRegistry->getEventEmitter<react::AutoLayoutViewEventEmitter>(ctx.tag);
-      if (eventEmitter == nullptr) {
-        return;
-      }
-      facebook::react::Float offsetStart = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetStart"));
-      facebook::react::Float offsetEnd = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetEnd"));
-      react::AutoLayoutViewEventEmitter::OnBlankAreaEvent event{offsetStart, offsetEnd};
-      eventEmitter->onBlankAreaEvent(event);
+        if (ctx.eventName != "AutoLayoutView") {
+            return;
+        }
+        ArkJS arkJs(ctx.env);
+        auto eventEmitter = ctx.shadowViewRegistry->getEventEmitter<react::AutoLayoutViewEventEmitter>(ctx.tag);
+        if (eventEmitter == nullptr) {
+            return;
+        }
+        facebook::react::Float offsetStart = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetStart"));
+        facebook::react::Float offsetEnd = arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "offsetEnd"));
+        react::AutoLayoutViewEventEmitter::OnBlankAreaEvent event{offsetStart, offsetEnd};
+        eventEmitter->onBlankAreaEvent(event);
     };
 };
 } // namespace rnoh

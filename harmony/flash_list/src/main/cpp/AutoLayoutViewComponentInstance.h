@@ -32,47 +32,47 @@
 #include "ShadowNodes.h"
 
 namespace rnoh {
-    class AutoLayoutViewComponentInstance : public CppComponentInstance<facebook::react::AutoLayoutViewShadowNode>,
-                                            public AutoLayoutNodeDelegate {
-    private:
-        AutoLayoutNode m_autoLayoutNode;
-        AutoLayoutShadow alShadow{AutoLayoutShadow()};
-        bool horizontal{false};
+class AutoLayoutViewComponentInstance : public CppComponentInstance<facebook::react::AutoLayoutViewShadowNode>,
+                                        public AutoLayoutNodeDelegate {
+private:
+    AutoLayoutNode m_autoLayoutNode;
+    AutoLayoutShadow alShadow{AutoLayoutShadow()};
+    bool horizontal{false};
 
-        bool enableInstrumentation{false};
-        bool disableAutoLayout{false};
-        Float pixelDensity{1.0};
+    bool enableInstrumentation{false};
+    bool disableAutoLayout{false};
+    Float pixelDensity{1.0};
 
-        std::shared_ptr<rnoh::ScrollViewComponentInstance> parentScrollView;
+    std::shared_ptr<rnoh::ScrollViewComponentInstance> parentScrollView;
 
-    public:
-        AutoLayoutViewComponentInstance(Context context);
+public:
+    AutoLayoutViewComponentInstance(Context context);
 
-        void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;
+    void onChildInserted(ComponentInstance::Shared const &childComponentInstance, std::size_t index) override;
 
-        void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
+    void onChildRemoved(ComponentInstance::Shared const &childComponentInstance) override;
 
-        AutoLayoutNode &getLocalRootArkUINode() override;
+    AutoLayoutNode &getLocalRootArkUINode() override;
 
-        void onPropsChanged(SharedConcreteProps const &props) override;
-        void getNapiProps(facebook::react::Props::Shared props);
-        void finalizeUpdates() override;
+    void onPropsChanged(SharedConcreteProps const &props) override;
+    void getNapiProps(facebook::react::Props::Shared props);
+    void finalizeUpdates() override;
 
-        facebook::react::Float getLeft();
-        facebook::react::Float getTop();
-        facebook::react::Float getRight();
-        facebook::react::Float getBottom();
-        facebook::react::Float getHeight();
-        facebook::react::Float getWidth();
+    facebook::react::Float getLeft();
+    facebook::react::Float getTop();
+    facebook::react::Float getRight();
+    facebook::react::Float getBottom();
+    facebook::react::Float getHeight();
+    facebook::react::Float getWidth();
 
-        void fixLayout();
-        void fixFooter();
-        facebook::react::Float getFooterDiff();
-        void onAppear() override;
-        std::shared_ptr<rnoh::CellContainerComponentInstance> getFooter();
-        std::shared_ptr<rnoh::ScrollViewComponentInstance> getParentScrollView();
-        void emitBlankAreaEvent() override;
-    };
+    void fixLayout();
+    void fixFooter();
+    facebook::react::Float getFooterDiff();
+    void onAppear() override;
+    std::shared_ptr<rnoh::CellContainerComponentInstance> getFooter();
+    std::shared_ptr<rnoh::ScrollViewComponentInstance> getParentScrollView();
+    void emitBlankAreaEvent() override;
+};
 } // namespace rnoh
 
 #endif // HARMONY_AUTOLAYOUTVIEWCOMPONENTINSTANCE_H

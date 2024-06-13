@@ -39,27 +39,28 @@ using namespace react;
 
 namespace rnoh {
 
-    class AutoLayoutShadow {
-    private:
-        Float lastMaxBound;  // Tracks where the last pixel is drawn in the visible window
-        Float lastMinBound;  // Tracks where first pixel is drawn in the visible window
-        bool isWithinBounds(CellContainerComponentInstance &);
+class AutoLayoutShadow {
+private:
+    Float lastMaxBound; // Tracks where the last pixel is drawn in the visible window
+    Float lastMinBound; // Tracks where first pixel is drawn in the visible window
+    bool isWithinBounds(CellContainerComponentInstance &);
 
-    public:
-        bool horizontal{false};
-        Float scrollOffset{0};
-        Float offsetFromStart{0};
-        Float windowSize{0};
-        Float renderOffset{0};
-        Float blankOffsetAtStart{0};  // Tracks blank area from the top
-        Float blankOffsetAtEnd{0};    // Tracks blank area from the bottom
-        Float lastMaxBoundOverall{0}; // Tracks where the last pixel is drawn in the overall
+public:
+    bool horizontal{false};
+    Float scrollOffset{0};
+    Float offsetFromStart{0};
+    Float windowSize{0};
+    Float renderOffset{0};
+    Float blankOffsetAtStart{0};  // Tracks blank area from the top
+    Float blankOffsetAtEnd{0};    // Tracks blank area from the bottom
+    Float lastMaxBoundOverall{0}; // Tracks where the last pixel is drawn in the overall
 
-        AutoLayoutShadow(){};
-        ~AutoLayoutShadow(){};
-        void clearGapsAndOverlaps(std::vector<CellContainerComponentInstance::Shared> sortedItems);
-        Float computeBlankFromGivenOffset(Float actualScrollOffset, Float distanceFromWindowStart, Float distanceFromWindowEnd);
-    };
+    AutoLayoutShadow(){};
+    ~AutoLayoutShadow(){};
+    void clearGapsAndOverlaps(std::vector<CellContainerComponentInstance::Shared> sortedItems);
+    Float computeBlankFromGivenOffset(Float actualScrollOffset, Float distanceFromWindowStart,
+                                      Float distanceFromWindowEnd);
+};
 } // namespace rnoh
 
 #endif // HARMONY_AUTOLAYOUTSHADOW_H

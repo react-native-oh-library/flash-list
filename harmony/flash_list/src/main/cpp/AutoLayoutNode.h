@@ -29,26 +29,26 @@
 
 namespace rnoh {
 
-    class AutoLayoutNodeDelegate {
-    public:
-        virtual ~AutoLayoutNodeDelegate() = default;
-        virtual void onAppear(){};
-        virtual void emitBlankAreaEvent(){};
-    };
+class AutoLayoutNodeDelegate {
+public:
+    virtual ~AutoLayoutNodeDelegate() = default;
+    virtual void onAppear(){};
+    virtual void emitBlankAreaEvent(){};
+};
 
-    class AutoLayoutNode : public ArkUINode {
-    protected:
-        AutoLayoutNodeDelegate *m_autoLayoutNodeDelegate;
+class AutoLayoutNode : public ArkUINode {
+protected:
+    AutoLayoutNodeDelegate *m_autoLayoutNodeDelegate;
 
-    public:
-        AutoLayoutNode();
-        ~AutoLayoutNode() override;
+public:
+    AutoLayoutNode();
+    ~AutoLayoutNode() override;
 
-        void insertChild(ArkUINode &child, std::size_t index);
-        void removeChild(ArkUINode &child);
-        void onNodeEvent(ArkUI_NodeEventType eventType, EventArgs& eventArgs) override;
-        void setAutoLayoutNodeDelegate(AutoLayoutNodeDelegate *autoLayoutNodeDelegate);
-        void setAlign(int32_t align);
-    };
+    void insertChild(ArkUINode &child, std::size_t index);
+    void removeChild(ArkUINode &child);
+    void onNodeEvent(ArkUI_NodeEventType eventType, EventArgs &eventArgs) override;
+    void setAutoLayoutNodeDelegate(AutoLayoutNodeDelegate *autoLayoutNodeDelegate);
+    void setAlign(int32_t align);
+};
 
 } // namespace rnoh

@@ -51,7 +51,7 @@ public:
 };
 
 class FlashListPackage : public Package {
-  public:
+public:
     FlashListPackage(Package::Context ctx) : Package(ctx) {}
 
     ComponentInstanceFactoryDelegate::Shared createComponentInstanceFactoryDelegate() override {
@@ -59,21 +59,19 @@ class FlashListPackage : public Package {
     }
 
     std::vector<facebook::react::ComponentDescriptorProvider> createComponentDescriptorProviders() override {
-      return {
-        facebook::react::concreteComponentDescriptorProvider<facebook::react::AutoLayoutViewComponentDescriptor>(),
-        facebook::react::concreteComponentDescriptorProvider<facebook::react::CellContainerComponentDescriptor>(),
-      };
+        return {
+            facebook::react::concreteComponentDescriptorProvider<facebook::react::AutoLayoutViewComponentDescriptor>(),
+            facebook::react::concreteComponentDescriptorProvider<facebook::react::CellContainerComponentDescriptor>(),
+        };
     }
 
     ComponentJSIBinderByString createComponentJSIBinderByName() override {
-      return {
-        {"AutoLayoutView", std::make_shared<AutoLayoutViewJSIBinder>()},
-        {"CellContainer", std::make_shared<CellContainerJSIBinder>()}
-      };
+        return {{"AutoLayoutView", std::make_shared<AutoLayoutViewJSIBinder>()},
+                {"CellContainer", std::make_shared<CellContainerJSIBinder>()}};
     };
 
     EventEmitRequestHandlers createEventEmitRequestHandlers() override {
-      return {std::make_shared<AutoLayoutViewEventEmitRequestHandler>()};
+        return {std::make_shared<AutoLayoutViewEventEmitRequestHandler>()};
     };
 };
 #endif

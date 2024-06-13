@@ -32,12 +32,12 @@ namespace facebook {
 namespace react {
 
 class JSI_EXPORT AutoLayoutViewEventEmitter : public ViewEventEmitter {
-  public:
+public:
     using ViewEventEmitter::ViewEventEmitter;
 
     struct OnBlankAreaEvent {
-      Float offsetStart;
-      Float offsetEnd;
+        Float offsetStart;
+        Float offsetEnd;
     };
 
     void onBlankAreaEvent(OnBlankAreaEvent value) const;
