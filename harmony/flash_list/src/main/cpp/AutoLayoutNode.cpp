@@ -42,9 +42,7 @@ namespace rnoh {
     }
 
     void AutoLayoutNode::onNodeEvent(ArkUI_NodeEventType eventType, EventArgs& eventArgs) {
-        LOG(INFO) << "[clx] <AutoLayoutNode::onNodeEvent> in!";
         if (eventType == ArkUI_NodeEventType::NODE_EVENT_ON_APPEAR) {
-            LOG(INFO) << "[clx] <AutoLayoutNode::onNodeEvent> onApear!";
             m_autoLayoutNodeDelegate->onAppear();
         }
     }
