@@ -1,0 +1,11 @@
+{
+  "license": "ISC",
+  "devDependencies": {},
+  "name": "entry",
+  "description": "example description",
+  "repository": '',
+  "version": "1.0.0",
+  "dependencies": {
+    "@react-native-oh-tpl/flash-list": "file:../flash_list"
+  }
+}
