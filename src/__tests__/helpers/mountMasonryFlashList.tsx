@@ -42,7 +42,7 @@ export type MockMasonryFlashListProps = Omit<
  */
 export const mountMasonryFlashList = (
   props?: MockMasonryFlashListProps,
-  ref?: React.RefObject<MasonryFlashListRef<string>>
+  ref?: React.RefObject<MasonryFlashListRef<string> | null>
 ) => {
   const flashList = mount(renderMasonryFlashList(props, ref)) as Omit<
     Root<MasonryFlashListProps<string>>,
@@ -55,7 +55,7 @@ export const mountMasonryFlashList = (
 
 export function renderMasonryFlashList(
   props?: MockMasonryFlashListProps,
-  ref?: React.RefObject<MasonryFlashListRef<string>>
+  ref?: React.RefObject<MasonryFlashListRef<string> | null>
 ) {
   return (
     <MasonryFlashList
