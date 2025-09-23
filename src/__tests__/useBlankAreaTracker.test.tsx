@@ -14,7 +14,7 @@ type BlankTrackingFlashListProps = MockFlashListProps & {
   onCumulativeBlankAreaResult?: (result: BlankAreaTrackerResult) => void;
   onCumulativeBlankAreaChange?: (updatedResult: BlankAreaTrackerResult) => void;
   blankAreaTrackerConfig?: BlankAreaTrackerConfig;
-  instance?: React.RefObject<FlashList<any>>;
+  instance?: React.RefObject<FlashList<any> | null>;
 };
 
 const BlankTrackingFlashList = (props?: BlankTrackingFlashListProps) => {
@@ -41,9 +41,7 @@ const BlankTrackingFlashList = (props?: BlankTrackingFlashListProps) => {
 };
 
 const mountBlankTrackingFlashList = (props?: BlankTrackingFlashListProps) => {
-  const flashListRef: React.RefObject<FlashList<any>> = {
-    current: null,
-  };
+  const flashListRef = React.createRef<FlashList<any>>();
   const blankTrackingFlashList = mount(
     <BlankTrackingFlashList {...props} instance={flashListRef} />
   );

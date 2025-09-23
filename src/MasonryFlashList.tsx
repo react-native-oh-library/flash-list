@@ -471,6 +471,6 @@ MasonryFlashListComponent.displayName = "MasonryFlashList";
  */
 export const MasonryFlashList = MasonryFlashListComponent as <T>(
   props: MasonryFlashListProps<T> & {
-    ref?: React.RefObject<MasonryFlashListRef<T>>;
+    ref?: React.RefObject<MasonryFlashListRef<T> | null>;
   }
 ) => React.ReactElement;

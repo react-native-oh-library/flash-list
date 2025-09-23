@@ -45,7 +45,7 @@ export const mountFlashList = (
 
 export function renderFlashList(
   props?: MockFlashListProps,
-  ref?: React.RefObject<FlashList<string>>
+  ref?: React.RefObject<FlashList<string> | null>
 ) {
   return (
     <FlashList

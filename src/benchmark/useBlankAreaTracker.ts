@@ -35,7 +35,7 @@ export interface BlankAreaTrackerConfig {
  * @returns blankAreaTrackerResult - maxBlankArea, cumulativeBlankArea this object is mutated and kept up to date. Also returns a callback that needs to be forwarded to FlashList.
  */
 export function useBlankAreaTracker(
-  flashListRef: React.RefObject<FlashList<any>>,
+  flashListRef: React.RefObject<FlashList<any> | null>,
   onBlankAreaChange?: (value: BlankAreaTrackerResult) => void,
   config?: BlankAreaTrackerConfig
 ): [BlankAreaTrackerResult, (event: BlankAreaEvent) => void] {
