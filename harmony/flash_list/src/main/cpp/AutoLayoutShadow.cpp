@@ -27,6 +27,7 @@
 #include <sys/param.h>
 #include <thread>
 #include "AutoLayoutShadow.h"
+#include <random>
 
 namespace rnoh {
 
@@ -44,64 +45,65 @@ void AutoLayoutShadow::clearGapsAndOverlaps(std::vector<CellContainerComponentIn
     for (int i = 0; i < sortedItems.size() - 1; i++) {
         auto cell = sortedItems[i];
         auto neighbour = sortedItems[i + 1];
+        std::optional<facebook::react::LayoutMetrics> neighbourMetrics;
         // Only apply correction if the next cell is consecutive.
         bool isNeighbourConsecutive = neighbour->getIndex() == cell->getIndex() + 1;
-        if (isWithinBounds(*cell)) {
+        if (isWithinBounds(cell->getLayoutMetrics())) {
             if (!horizontal) {
                 maxBound = MAX(maxBound, cell->getBottom());
                 minBound = MIN(minBound, cell->getTop());
                 maxBoundNeighbour = maxBound;
                 if (isNeighbourConsecutive) {
+                    neighbourMetrics = neighbour->getLayoutMetrics();
                     if (cell->getLeft() < neighbour->getLeft()) {
                         if (cell->getRight() != neighbour->getLeft()) {
-                            neighbour->setRight(cell->getRight() + neighbour->getWidth());
-                            neighbour->setLeft(cell->getRight());
+                            neighbourMetrics.value().frame.origin.x = cell->getRight();
                         }
                         if (cell->getTop() != neighbour->getTop()) {
-                            neighbour->setBottom(cell->getTop() + neighbour->getHeight());
-                            neighbour->setTop(cell->getTop());
+                            neighbourMetrics.value().frame.origin.y = cell->getTop();
                         }
                     } else {
-                        neighbour->setBottom(maxBound + neighbour->getHeight());
-                        neighbour->setTop(maxBound);
+                        neighbourMetrics.value().frame.origin.y = maxBound;
                     }
                 }
-                if (isWithinBounds(*neighbour)) {
-                    maxBoundNeighbour = MAX(maxBound, neighbour->getBottom());
+                if (isWithinBounds(*neighbourMetrics)) {
+                    float bottom = neighbourMetrics->frame.origin.y + neighbourMetrics->frame.size.height;
+                    maxBoundNeighbour = MAX(maxBound, bottom);
                 }
             } else {
                 maxBound = MAX(maxBound, cell->getRight());
                 minBound = MIN(minBound, cell->getLeft());
                 maxBoundNeighbour = maxBound;
                 if (isNeighbourConsecutive) {
+                    neighbourMetrics = neighbour->getLayoutMetrics();
                     if (cell->getTop() < neighbour->getTop()) {
                         if (cell->getBottom() != neighbour->getTop()) {
-                            neighbour->setBottom(cell->getBottom() + neighbour->getHeight());
-                            neighbour->setTop(cell->getBottom());
+                            neighbourMetrics.value().frame.origin.y = cell->getBottom();
                         }
                         if (cell->getLeft() != neighbour->getLeft()) {
-                            neighbour->setRight(cell->getLeft() + neighbour->getWidth());
-                            neighbour->setLeft(cell->getLeft());
+                            neighbourMetrics.value().frame.origin.x = cell->getLeft();
                         }
                     } else {
-                        neighbour->setRight(maxBound + neighbour->getWidth());
-                        neighbour->setLeft(maxBound);
+                        neighbourMetrics.value().frame.origin.x = maxBound;
                     }
                 }
-                if (isWithinBounds(*neighbour)) {
-                    maxBoundNeighbour = MAX(maxBound, neighbour->getRight());
+                if (isWithinBounds(*neighbourMetrics)) {
+                    float right = neighbourMetrics->frame.origin.x + neighbourMetrics->frame.size.width;
+                    maxBoundNeighbour = MAX(maxBound, right);
                 }
             }
         }
         if (horizontal) {
             lastMaxBoundOverall = MAX(lastMaxBoundOverall, cell->getRight());
+            float right = neighbourMetrics->frame.origin.x + neighbourMetrics->frame.size.width;
             lastMaxBoundOverall = MAX(lastMaxBoundOverall, neighbour->getRight());
         } else {
             lastMaxBoundOverall = MAX(lastMaxBoundOverall, cell->getBottom());
-            lastMaxBoundOverall = MAX(lastMaxBoundOverall, neighbour->getBottom());
+            float bottom = neighbourMetrics->frame.origin.y + neighbourMetrics->frame.size.height;
+            lastMaxBoundOverall = MAX(lastMaxBoundOverall, bottom);
         }
         cell->setLayout(cell->getLayoutMetrics());
-        neighbour->setLayout(neighbour->getLayoutMetrics());
+        neighbour->setLayout(neighbourMetrics ? neighbourMetrics.value() : neighbour->getLayoutMetrics());
     }
     lastMaxBound = maxBoundNeighbour;
     lastMinBound = minBound;
@@ -119,15 +121,20 @@ Float AutoLayoutShadow::computeBlankFromGivenOffset(Float actualScrollOffset, Fl
 /**It's importance to aviod correcting views outside the render window. An item that isn't being recycled might
  * still remain in the view tree. If views outside get considered then gaps between unused items will cause
  * algorithm to fail.*/
-bool AutoLayoutShadow::isWithinBounds(CellContainerComponentInstance &cell) {
+bool AutoLayoutShadow::isWithinBounds(const facebook::react::LayoutMetrics& metrics) {
     auto boundsStart = scrollOffset - renderOffset;
     auto boundsEnd = scrollOffset + windowSize;
+    float top = metrics.frame.origin.y;
+    float bottom = metrics.frame.origin.y + metrics.frame.size.height;
+    float left = metrics.frame.origin.x;
+    float right = metrics.frame.origin.x + metrics.frame.size.width;
+
     if (!this->horizontal) {
-        return (cell.getTop() >= boundsStart || cell.getBottom() >= boundsStart) &&
-               (cell.getTop() <= boundsEnd || cell.getBottom() <= boundsEnd);
+        return (top >= boundsStart || bottom >= boundsStart) &&
+               (top <= boundsEnd || bottom <= boundsEnd);
     } else {
-        return (cell.getLeft() >= boundsStart || cell.getRight() >= boundsStart) &&
-               (cell.getLeft() <= boundsEnd || cell.getRight() <= boundsEnd);
+        return (left >= boundsStart || right >= boundsStart) &&
+               (left <= boundsEnd || right <= boundsEnd);
     }
 }
 } // namespace rnoh
