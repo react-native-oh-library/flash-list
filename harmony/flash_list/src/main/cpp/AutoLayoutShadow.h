@@ -43,7 +43,7 @@ class AutoLayoutShadow {
 private:
     Float lastMaxBound; // Tracks where the last pixel is drawn in the visible window
     Float lastMinBound; // Tracks where first pixel is drawn in the visible window
-    bool isWithinBounds(CellContainerComponentInstance &);
+    bool isWithinBounds(const facebook::react::LayoutMetrics& metrics);
 
 public:
     bool horizontal{false};

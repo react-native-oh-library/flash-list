@@ -56,6 +56,7 @@ export interface FlashListState<T> {
   data?: ReadonlyArray<T> | null;
   extraData?: ExtraData<unknown>;
   renderItem?: FlashListProps<T>["renderItem"];
+  lastInverted?: boolean;
 }
 
 interface ExtraData<T> {
@@ -69,10 +70,6 @@ class FlashList<T> extends React.PureComponent<
   private rlvRef?: RecyclerListView<RecyclerListViewProps, any>;
   private stickyContentContainerRef?: PureComponentWrapper;
   private listFixedDimensionSize = 0;
-  private transformStyle = PlatformConfig.invertedTransformStyle;
-  private transformStyleHorizontal =
-    PlatformConfig.invertedTransformStyleHorizontal;
-
   private distanceFromWindow = 0;
   private contentStyle: ContentStyleExplicit = {
     paddingBottom: 0,
@@ -182,10 +179,13 @@ class FlashList<T> extends React.PureComponent<
       !prevState.layoutProvider?.hasExpired
     );
 
-    if (nextProps.data !== prevState.data) {
-      newState.data = nextProps.data;
+    if (nextProps.data !== prevState.data || prevState.lastInverted !== nextProps.inverted) {
+      const processedData = nextProps.inverted
+          ? (nextProps.data ? [...nextProps.data].reverse() : nextProps.data)
+          : nextProps.data;
+      newState.data = processedData;
       newState.dataProvider = prevState.dataProvider.cloneWithRows(
-        nextProps.data as any[]
+          processedData as any[]
       );
       if (nextProps.renderItem !== prevState.renderItem) {
         newState.extraData = { ...prevState.extraData };
@@ -195,6 +195,7 @@ class FlashList<T> extends React.PureComponent<
       newState.extraData = { value: nextProps.extraData };
     }
     newState.renderItem = nextProps.renderItem;
+    newState.lastInverted = nextProps.inverted ?? undefined;
     return newState;
   }
 
@@ -333,8 +334,8 @@ class FlashList<T> extends React.PureComponent<
         stickyHeaderIndices={stickyHeaderIndices}
         style={
           this.props.horizontal
-            ? { ...this.getTransform() }
-            : { flex: 1, overflow: "hidden", ...this.getTransform() }
+              ? { }
+              : { flex: 1, overflow: "hidden" }
         }
       >
         <ProgressiveListView
@@ -507,7 +508,6 @@ class FlashList<T> extends React.PureComponent<
           ...props.style,
           flexDirection: this.props.horizontal ? "row" : "column",
           alignItems: "stretch",
-          ...this.getTransform(),
           ...getCellContainerPlatformStyles(this.props.inverted!!, parentProps),
         }}
         index={parentProps.index}
@@ -535,12 +535,7 @@ class FlashList<T> extends React.PureComponent<
     }
   };
 
-  private getTransform() {
-    const transformStyle = this.props.horizontal
-      ? this.transformStyleHorizontal
-      : this.transformStyle;
-    return (this.props.inverted && transformStyle) || undefined;
-  }
+
 
   private separator = (index: number) => {
     // Make sure we have data and don't read out of bounds
@@ -576,7 +571,7 @@ class FlashList<T> extends React.PureComponent<
         />
 
         <View
-          style={[this.props.ListHeaderComponentStyle, this.getTransform()]}
+            style={[this.props.ListHeaderComponentStyle]}
         >
           {this.getValidComponent(this.props.ListHeaderComponent)}
         </View>
@@ -593,7 +588,7 @@ class FlashList<T> extends React.PureComponent<
       <>
         <FooterContainer
           index={-1}
-          style={[this.props.ListFooterComponentStyle, this.getTransform()]}
+          style={[this.props.ListFooterComponentStyle]}
         >
           {this.getValidComponent(this.props.ListFooterComponent)}
         </FooterContainer>
@@ -648,7 +643,7 @@ class FlashList<T> extends React.PureComponent<
   private rowRendererWithIndex = (index: number, target: RenderTarget) => {
     // known issue: expected to pass separators which isn't available in RLV
     return this.props.renderItem?.({
-      item: this.props.data![index],
+      item: this.state.data![index],
       index,
       target,
       extraData: this.state.extraData?.value,
@@ -678,7 +673,7 @@ class FlashList<T> extends React.PureComponent<
         >
           {this.rowRendererWithIndex(index, RenderTargetOptions.Cell)}
         </View>
-        {this.props.inverted ? null : this.separator(index)}
+        {this.separator(index)}
       </>
     );
   };
